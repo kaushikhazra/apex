@@ -1,0 +1,275 @@
+/* ============================================================
+   GRAPHITE DESIGN SYSTEM
+   Warm monochrome, dark-first. Highlighter-yellow single accent.
+   Technical type pairing: JetBrains Mono (display) + Inter (body).
+   Flat surfaces, small radii (4–6px), comfortable density.
+   ============================================================ */
+
+/* ----- Fonts ------------------------------------------------ */
+/* Substitutions flagged to user: JetBrains Mono + Inter via Google Fonts.
+   If licensed display/body fonts are preferred, swap the @font-face block. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* ============================================================
+   BASE TOKENS — dark-first
+   ============================================================ */
+:root {
+  color-scheme: dark;
+
+  /* ----- Warm grayscale (oklch stays perceptually even) ----- */
+  --stone-950: #0d0c0a;   /* app background */
+  --stone-925: #121110;   /* raised surface */
+  --stone-900: #17161333;
+  --stone-875: #1b1a17;   /* card */
+  --stone-850: #211f1b;   /* hover surface */
+  --stone-800: #2a2722;   /* border strong */
+  --stone-750: #3a3630;   /* border default */
+  --stone-700: #4a453d;   /* border subtle-on-light */
+  --stone-600: #6b6459;   /* fg-muted */
+  --stone-500: #8a8377;   /* fg-secondary */
+  --stone-400: #a8a195;   /* fg-tertiary */
+  --stone-300: #c5beb0;   /* fg-default-on-dark */
+  --stone-200: #ddd6c7;
+  --stone-150: #e8e2d6;
+  --stone-100: #efeade;   /* page bg on light mode */
+  --stone-50:  #f6f2e8;
+
+  /* ----- Accent — Highlighter Yellow ------------------------ */
+  --accent-100: #fff9c2;
+  --accent-200: #fef08a;
+  --accent-400: #facc15;
+  --accent-500: #eab308;   /* DEFAULT */
+  --accent-600: #ca8a04;
+  --accent-700: #a16207;
+
+  /* ----- Semantic surfaces (dark mode) ---------------------- */
+  --bg-app:       var(--stone-950);
+  --bg-surface:   var(--stone-925);
+  --bg-raised:    var(--stone-875);
+  --bg-hover:     var(--stone-850);
+  --bg-active:    var(--stone-800);
+  --bg-inset:     #09080700;
+
+  /* ----- Foreground ----------------------------------------- */
+  --fg-1:         var(--stone-150);  /* primary text */
+  --fg-2:         var(--stone-400);  /* secondary text */
+  --fg-3:         var(--stone-500);  /* tertiary / captions */
+  --fg-4:         var(--stone-600);  /* disabled / watermark */
+  --fg-inverse:   var(--stone-950);  /* text on accent */
+  --fg-accent:    var(--accent-400);
+
+  /* ----- Borders -------------------------------------------- */
+  --border-subtle:  var(--stone-800);
+  --border-default: var(--stone-750);
+  --border-strong:  var(--stone-700);
+  --border-accent:  var(--accent-500);
+
+  /* ----- Status (muted; only accent when actionable) -------- */
+  --status-success: #9ab87a;
+  --status-warning: #e0b04a;
+  --status-danger:  #d97757;
+  --status-info:    var(--stone-400);
+
+  /* ----- Radii (small, conservative) ------------------------ */
+  --radius-xs: 3px;
+  --radius-sm: 4px;     /* DEFAULT for inputs, buttons */
+  --radius-md: 6px;     /* cards, menus */
+  --radius-lg: 8px;     /* modals */
+  --radius-full: 999px; /* pills, avatars */
+
+  /* ----- Spacing (4px base) --------------------------------- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ----- Elevation (flat; borders do the work) -------------- */
+  --elev-0: none;
+  --elev-1: 0 0 0 1px var(--border-subtle);
+  --elev-2: 0 0 0 1px var(--border-default);
+  --elev-focus: 0 0 0 2px var(--stone-950), 0 0 0 4px var(--accent-500);
+
+  /* ----- Type families -------------------------------------- */
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: var(--font-mono);  /* technical vibe */
+  --font-body:    var(--font-sans);
+
+  /* ----- Type scale (rem-based, 16px root) ------------------ */
+  --fs-display: 44px;
+  --fs-h1:      32px;
+  --fs-h2:      24px;
+  --fs-h3:      18px;
+  --fs-h4:      16px;
+  --fs-body:    14px;   /* app default */
+  --fs-body-lg: 15px;
+  --fs-sm:      13px;
+  --fs-xs:      12px;
+  --fs-micro:   11px;   /* labels, kbd, uppercase eyebrows */
+
+  /* ----- Line heights --------------------------------------- */
+  --lh-tight: 1.1;
+  --lh-snug:  1.25;
+  --lh-body:  1.5;
+  --lh-loose: 1.7;
+
+  /* ----- Tracking ------------------------------------------- */
+  --tracking-tight: -0.02em;
+  --tracking-wide:  0.02em;
+  --tracking-caps:  0.08em;
+
+  /* ----- Motion (restrained) -------------------------------- */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in:  cubic-bezier(0.4, 0, 0.6, 1);
+  --dur-1: 100ms;
+  --dur-2: 160ms;
+  --dur-3: 240ms;
+}
+
+/* ============================================================
+   LIGHT MODE (secondary)
+   ============================================================ */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-app:       var(--stone-50);
+  --bg-surface:   #ffffff;
+  --bg-raised:    #ffffff;
+  --bg-hover:     var(--stone-100);
+  --bg-active:    var(--stone-150);
+  --bg-inset:     var(--stone-100);
+
+  --fg-1: var(--stone-950);
+  --fg-2: var(--stone-700);
+  --fg-3: var(--stone-600);
+  --fg-4: var(--stone-500);
+  --fg-inverse: var(--stone-50);
+  --fg-accent:  var(--accent-700);
+
+  --border-subtle:  var(--stone-150);
+  --border-default: var(--stone-200);
+  --border-strong:  var(--stone-300);
+
+  --elev-focus: 0 0 0 2px #fff, 0 0 0 4px var(--accent-600);
+}
+
+/* ============================================================
+   SEMANTIC ELEMENT STYLES (opt-in scope — use .gr-typography)
+   ============================================================ */
+.gr-typography,
+.gr-typography * {
+  font-family: var(--font-body);
+  color: var(--fg-1);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.gr-typography h1, .gr-h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: 500;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-1);
+}
+
+.gr-typography h2, .gr-h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-1);
+}
+
+.gr-typography h3, .gr-h3 {
+  font-family: var(--font-body);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--fg-1);
+}
+
+.gr-typography h4, .gr-h4 {
+  font-family: var(--font-body);
+  font-size: var(--fs-h4);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--fg-1);
+}
+
+.gr-typography p, .gr-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--fg-1);
+}
+
+.gr-display {
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  font-weight: 500;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.gr-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--fg-3);
+}
+
+.gr-caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  color: var(--fg-2);
+  line-height: var(--lh-body);
+}
+
+.gr-mono, code, kbd, pre {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--border-default);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-raised);
+  color: var(--fg-2);
+  font-size: var(--fs-micro);
+}
+
+code {
+  padding: 1px 5px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--fg-1);
+}
+
+/* ============================================================
+   FOCUS, SELECTION
+   ============================================================ */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--elev-focus);
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background: var(--accent-500);
+  color: var(--fg-inverse);
+}

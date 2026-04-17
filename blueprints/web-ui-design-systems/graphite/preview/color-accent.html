@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Accent</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 180px; display: flex; flex-direction: column; gap: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; flex: 1; }
+  .sw { border-radius: 4px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; min-height: 68px; border: 1px solid rgba(0,0,0,0.12); }
+  .sw .n { font-family: var(--font-mono); font-size: 10px; }
+  .sw .v { font-family: var(--font-mono); font-size: 9px; opacity: 0.7; }
+  .light-text { color: #1a1205; }
+  .dark-text { color: var(--fg-1); }
+  .usage { font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); }
+</style></head><body>
+<div class="row" style="justify-content: space-between;">
+  <span class="eyebrow">Highlighter Yellow · single accent</span>
+  <span class="usage">max 1× per screen</span>
+</div>
+<div class="grid">
+  <div class="sw light-text" style="background: var(--accent-100)"><span class="n">100</span><span class="v">#fff9c2</span></div>
+  <div class="sw light-text" style="background: var(--accent-200)"><span class="n">200</span><span class="v">#fef08a</span></div>
+  <div class="sw light-text" style="background: var(--accent-400)"><span class="n">400</span><span class="v">#facc15</span></div>
+  <div class="sw light-text" style="background: var(--accent-500); outline: 1px solid var(--accent-400); outline-offset: -3px;"><span class="n">500 ★</span><span class="v">#eab308</span></div>
+  <div class="sw dark-text" style="background: var(--accent-600); color: #1a1205;"><span class="n">600</span><span class="v">#ca8a04</span></div>
+  <div class="sw dark-text" style="background: var(--accent-700); color: var(--stone-100);"><span class="n">700</span><span class="v">#a16207</span></div>
+</div>
+</body></html>

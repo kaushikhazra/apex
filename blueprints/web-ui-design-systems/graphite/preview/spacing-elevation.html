@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Elevation</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 170px; display: flex; flex-direction: column; gap: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; flex: 1; }
+  .cell { background: var(--bg-surface); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; min-height: 72px; }
+  .cell .name { font-family: var(--font-mono); font-size: 11px; color: var(--fg-1); }
+  .cell .desc { font-family: var(--font-sans); font-size: 11px; color: var(--fg-3); line-height: 1.4; }
+  .e0 { border: 1px solid var(--border-subtle); }
+  .e1 { border: 1px solid var(--border-default); }
+  .e2 { border: 1px solid var(--border-strong); background: var(--bg-raised); }
+</style></head><body>
+<div class="row" style="justify-content: space-between;">
+  <span class="eyebrow">Elevation — via borders only</span>
+  <span class="eyebrow mono" style="color: var(--fg-2);">no shadows</span>
+</div>
+<div class="grid">
+  <div class="cell e0"><span class="name">inset</span><span class="desc">inside a card; hairline</span></div>
+  <div class="cell e1"><span class="name">default</span><span class="desc">card, panel, button</span></div>
+  <div class="cell e2"><span class="name">raised</span><span class="desc">hover, menu, modal</span></div>
+</div>
+</body></html>

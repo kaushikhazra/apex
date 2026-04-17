@@ -1,0 +1,11 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="none">
+  
+  <g stroke="currentColor" stroke-width="3" stroke-linecap="square" fill="none">
+    <path d="M6 8 L30 8 L30 16"></path>
+    <path d="M6 20 L22 20"></path>
+    <path d="M6 32 L30 32 L30 20"></path>
+  </g>
+  
+  <text x="44" y="27" font-family="&#39;JetBrains Mono&#39;, ui-monospace, monospace" font-size="18" font-weight="500" fill="currentColor" letter-spacing="-0.5">GRAPHITE</text>
+</svg>

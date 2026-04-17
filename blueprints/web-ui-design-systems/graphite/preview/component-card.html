@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Card</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 170px; }
+  .card {
+    border: 1px solid var(--border-default); border-radius: 6px;
+    background: var(--bg-surface); padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .hdr { display: flex; justify-content: space-between; align-items: center; }
+  .title { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--fg-1); }
+  .meta { font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+  .m .lab { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); }
+  .m .val { font-family: var(--font-mono); font-size: 18px; color: var(--fg-1); margin-top: 2px; }
+  .m .val.accent { color: var(--fg-accent); }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; color: var(--fg-2); text-transform: uppercase; letter-spacing: 0.08em; }
+  .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--status-success); }
+</style></head><body>
+<div class="card">
+  <div class="hdr">
+    <span class="title">graphite-web</span>
+    <span class="status"><span class="dot"></span>Ready</span>
+  </div>
+  <div class="metrics">
+    <div class="m"><div class="lab">Latency</div><div class="val">142ms</div></div>
+    <div class="m"><div class="lab">Requests</div><div class="val">12.4K</div></div>
+    <div class="m"><div class="lab">Errors</div><div class="val">0.02%</div></div>
+    <div class="m"><div class="lab">Uptime</div><div class="val accent">99.98%</div></div>
+  </div>
+  <span class="meta">main · a3f9e2c · deployed 2m ago</span>
+</div>
+</body></html>
