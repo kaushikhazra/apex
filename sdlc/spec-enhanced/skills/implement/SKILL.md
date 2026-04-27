@@ -72,9 +72,11 @@ Rules for todos:
 - **Each todo should be independently testable** — after completing a todo, its tests must pass without depending on unfinished todos.
 - **Follow the task.md actor/action/target pattern** — who does what with which component.
 
-### Step 5: Write task.md (Upfront)
+### Step 5: Read or Create task.md
 
-Write `.claude/specs/{slug}/task.md` with ALL planned items as `[ ]` (pending). Follow the project's task.md format:
+**If `task.md` already exists** (skeleton written by `/design`): Do NOT overwrite or regenerate it (AC-7.1). Read the existing skeleton — every `[ ]` item is a unit of work to be executed. Proceed to Step 6.
+
+**If `task.md` does not exist**: Write `.claude/specs/{slug}/task.md` with ALL planned items as `[ ]` (pending). Follow the project's task.md format:
 
 ```markdown
 # {Spec Title} — Tasks
@@ -97,7 +99,7 @@ Rules for task.md:
 
 For each todo, in order:
 
-1. **Update task.md** — mark the corresponding items as `[-]` (in progress)
+1. **Update task.md** — mark the corresponding skeleton item as `[-]` (in progress) before starting (AC-7.2)
 2. **Write the code** — implement what the todo describes, following:
    - The design document for architecture and schemas
    - `CLAUDE.md` for coding standards (PEP 8, SOLID, DRY, KISS)
@@ -109,8 +111,13 @@ For each todo, in order:
    - If 90% coverage is not achievable, document the reason in the todo
    - Follow existing test patterns in the project
 4. **Run the tests** — verify they pass. Fix any failures before proceeding.
-5. **Update task.md** — mark the corresponding items as `[x]` (done)
-6. **Move to the next todo**
+5. **Update task.md** — mark the corresponding skeleton item as `[x]` (done) (AC-7.2)
+6. **Sub-tasks** — you may append sub-tasks beneath a skeleton item (one level of nesting, same status markers) to capture finer-grained steps (AC-7.3). Do not remove or rename the skeleton item itself — sub-tasks are additive only.
+7. **Untraced work** — if you discover work not covered by any skeleton item, add a new `[ ]` item for it in `task.md` and append a warning comment on the same line (AC-7.4):
+   ```
+   - [ ] **Implementer** {action} {target} — _{ref}_ <!-- ⚠ not in Pass 9 skeleton — design.md Files Changed may be incomplete -->
+   ```
+8. **Move to the next todo**
 
 **Parallelism:** Independent todos (no code dependencies between them) can be executed in parallel. Dependent todos must still be sequential (finish the foundation before building on it).
 
@@ -119,7 +126,7 @@ For each todo, in order:
 - **Design drives implementation.** Every piece of code must trace back to the design document. If the design is ambiguous, flag it — don't guess.
 - **Tests are not optional.** Every todo produces code AND tests. No "I'll add tests later."
 - **90% coverage target.** If not achievable, document why — not silently skip. Common valid reasons: external service calls that need integration tests, generated code, platform-specific branches.
-- **task.md is a living document.** Written upfront with `[ ]`, updated to `[-]` when starting, `[x]` when done. It should reflect real-time progress.
+- **task.md is a living document.** When `/design` has produced a skeleton, consume it — do not overwrite. When no skeleton exists, write it upfront with `[ ]`. In both cases update to `[-]` when starting each item and `[x]` when done. It should reflect real-time progress.
 - **Actor/action/target in every task.** Per CLAUDE.md: "If a task can be read two ways — one that follows the architecture and one that shortcuts it — it will be shortcut." Be explicit.
 - **Requirement traceability.** Every task.md item ends with `_{ABBR}-N_` referencing the requirement it satisfies.
 - **Run tests after each todo.** Don't accumulate untested code across multiple todos. Each todo must leave the codebase in a passing state.
