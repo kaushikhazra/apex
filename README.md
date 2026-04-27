@@ -25,18 +25,32 @@ apex/
 
 ## SDLC Methods
 
-### Spec-Enhanced
+### Spec-Enhanced (`e-spec` plugin)
 
-A spec-driven development workflow where every feature follows a lifecycle before code is written.
+A spec-driven development workflow where every feature follows a lifecycle before code is written. Distributed as a Claude Code plugin under the `e-spec` namespace — skills are invoked as `/e-spec:requirement`, `/e-spec:design`, `/e-spec:dryrun-code`, etc.
 
-**Lifecycle**: `/spec` → `/requirement` → `/design` → `/implement`
+**Lifecycle**: `/e-spec:spec` → `/e-spec:requirement` → `/e-spec:design` → `/e-spec:implement`
 
-**Quality gates**: `/dryrun-design`, `/dryrun-code`, `/dryrun-plan`, `/dryrun-blueprint`, `/dryrun-context`
+**Quality gates**: `/e-spec:dryrun-design`, `/e-spec:dryrun-code`, `/e-spec:dryrun-plan`, `/e-spec:dryrun-blueprint`, `/e-spec:dryrun-context`
 
 **Includes**:
 - 10 Claude Code skills (full spec lifecycle + validation)
-- 8 hooks (branch guard, security, formatting, context evaluation)
+- 8 hooks (branch guard, security, formatting, context evaluation) — auto-fire on tool use, no per-project wiring needed
 - Portable `CLAUDE.md` with coding principles, git flow, and task rules
+
+**Install in any project**:
+
+```bash
+# From this repo (after pushing develop)
+/plugin install https://github.com/kaushikhazra/apex.git#develop:sdlc/spec-enhanced
+
+# Or local path during development
+claude --plugin-dir <path-to-apex>/sdlc/spec-enhanced
+```
+
+Optional dependency: install `ruff` (`pip install ruff` or `pipx install ruff`) on the target machine to enable the `ruff_format.py` post-edit hook.
+
+Plugin internals: see `sdlc/spec-enhanced/README.md`.
 
 ### Scaled Agile
 
@@ -65,6 +79,16 @@ A SAFe-based multi-level agent hierarchy for enterprise software delivery.
 ---
 
 ## Usage
+
+**Spec-Enhanced (preferred — plugin install)**:
+
+```bash
+/plugin install https://github.com/kaushikhazra/apex.git#develop:sdlc/spec-enhanced
+```
+
+After install, skills are available under `/e-spec:*` and hooks auto-fire on tool use. No per-project wiring; one `git pull` of APEX bumps every consumer project on the next plugin update.
+
+**Other methods + blueprints (copy-paste, until plugin-packaged)**:
 
 1. Clone the repo
 2. Copy the SDLC method that fits your project into your `.claude/` directory
