@@ -41,12 +41,15 @@ A spec-driven development workflow where every feature follows a lifecycle befor
 **Install in any project**:
 
 ```bash
-# From this repo (after pushing develop)
-/plugin install https://github.com/kaushikhazra/apex.git#develop:sdlc/spec-enhanced
+# Two-step marketplace install (preferred)
+/plugin marketplace add kaushikhazra/apex#develop
+/plugin install e-spec@apex-tools
 
-# Or local path during development
+# Or local path during development (clone APEX first)
 claude --plugin-dir <path-to-apex>/sdlc/spec-enhanced
 ```
+
+Marketplace manifest at `.claude-plugin/marketplace.json` declares the plugin's location inside this monorepo (subdirectory `sdlc/spec-enhanced/`).
 
 Optional dependency: install `ruff` (`pip install ruff` or `pipx install ruff`) on the target machine to enable the `ruff_format.py` post-edit hook.
 
@@ -83,7 +86,9 @@ A SAFe-based multi-level agent hierarchy for enterprise software delivery.
 **Spec-Enhanced (preferred — plugin install)**:
 
 ```bash
-/plugin install https://github.com/kaushikhazra/apex.git#develop:sdlc/spec-enhanced
+# Two-step marketplace install (preferred)
+/plugin marketplace add kaushikhazra/apex#develop
+/plugin install e-spec@apex-tools
 ```
 
 After install, skills are available under `/e-spec:*` and hooks auto-fire on tool use. No per-project wiring; one `git pull` of APEX bumps every consumer project on the next plugin update.
