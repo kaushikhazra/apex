@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Menu</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 240px; display: flex; gap: 20px; }
+  .menu {
+    width: 240px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 4px;
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 10px; border-radius: 3px;
+    font-family: var(--font-sans); font-size: 13px;
+    color: var(--fg-1);
+  }
+  .item .ico { width: 14px; color: var(--fg-3); }
+  .item .kbd { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); }
+  .item.hover { background: var(--bg-hover); }
+  .item.danger { color: var(--status-danger); }
+  .divider { height: 1px; background: var(--border-subtle); margin: 4px 0; }
+  .sec { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); padding: 6px 10px 2px; }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border-default); align-self: flex-start; }
+  .tab { padding: 8px 14px; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+  .tab.active { color: var(--fg-1); border-bottom-color: var(--accent-500); }
+</style></head><body>
+<div>
+  <span class="eyebrow" style="display:block; margin-bottom: 10px;">Popover menu</span>
+  <div class="menu">
+    <div class="sec">Project</div>
+    <div class="item"><span class="ico">⊞</span>Overview<span class="kbd">⌘1</span></div>
+    <div class="item hover"><span class="ico">↗</span>Deployments<span class="kbd">⌘2</span></div>
+    <div class="item"><span class="ico">⚙</span>Settings<span class="kbd">⌘,</span></div>
+    <div class="divider"></div>
+    <div class="item danger"><span class="ico">⌫</span>Delete project</div>
+  </div>
+</div>
+<div>
+  <span class="eyebrow" style="display:block; margin-bottom: 10px;">Tabs</span>
+  <div class="tabs">
+    <span class="tab active">Overview</span>
+    <span class="tab">Deployments</span>
+    <span class="tab">Logs</span>
+    <span class="tab">Settings</span>
+  </div>
+</div>
+</body></html>

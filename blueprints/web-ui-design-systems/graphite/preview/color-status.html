@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Status</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 140px; display: flex; flex-direction: column; gap: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 1; }
+  .cell { border: 1px solid var(--border-default); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+  .cell .row { align-items: center; gap: 8px; }
+  .dot { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; }
+  .label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-1); }
+  .hex { font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); }
+</style></head><body>
+<span class="eyebrow">Status — muted, earthy</span>
+<div class="grid">
+  <div class="cell"><div class="row"><span class="dot" style="background: var(--status-success)"></span><span class="label">Ready</span></div><span class="hex">#9ab87a</span></div>
+  <div class="cell"><div class="row"><span class="dot" style="background: var(--status-warning)"></span><span class="label">Warning</span></div><span class="hex">#e0b04a</span></div>
+  <div class="cell"><div class="row"><span class="dot" style="background: var(--status-danger)"></span><span class="label">Failed</span></div><span class="hex">#d97757</span></div>
+  <div class="cell"><div class="row"><span class="dot" style="background: var(--status-info)"></span><span class="label">Idle</span></div><span class="hex">#a8a195</span></div>
+</div>
+</body></html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Inputs</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 200px; display: flex; flex-direction: column; gap: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); }
+  .input {
+    height: 32px; padding: 0 10px;
+    background: var(--bg-app); color: var(--fg-1);
+    border: 1px solid var(--border-default); border-radius: 4px;
+    font-family: var(--font-sans); font-size: 13px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .input.focused { border-color: var(--accent-500); }
+  .placeholder { color: var(--fg-4); }
+  .dim { color: var(--fg-3); font-family: var(--font-mono); }
+  .disabled { opacity: 0.4; }
+</style></head><body>
+<span class="eyebrow">Inputs · 32px, 4px radius</span>
+<div class="grid">
+  <div class="field"><span class="label">Project name</span><div class="input">graphite-web</div></div>
+  <div class="field"><span class="label">Search</span><div class="input"><span class="dim">⌕</span><span class="placeholder">Find anything…</span><span style="margin-left: auto;" class="dim">⌘K</span></div></div>
+  <div class="field"><span class="label">Focused</span><div class="input focused">main</div></div>
+  <div class="field"><span class="label">Disabled</span><div class="input disabled">read-only</div></div>
+</div>
+</body></html>

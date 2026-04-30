@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Graphite · Dashboard</title>
+<link rel="stylesheet" href="app.css" />
+<style>
+  @keyframes gr-fade-up {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+<script src="https://unpkg.com/lucide@0.446.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="Primitives.jsx"></script>
+<script type="text/babel" src="Sidebar.jsx"></script>
+<script type="text/babel" src="TopBar.jsx"></script>
+<script type="text/babel" src="OverviewScreen.jsx"></script>
+<script type="text/babel" src="DeploymentsScreen.jsx"></script>
+<script type="text/babel" src="SettingsScreen.jsx"></script>
+<script type="text/babel" src="CommandPalette.jsx"></script>
+<script type="text/babel" src="Toast.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+/* global React, ReactDOM, Sidebar, TopBar, OverviewScreen, DeploymentsScreen, SettingsScreen, CommandPalette, ToastStack, Button, Ico */
+const { useState, useEffect, useCallback } = React;
+
+const TABS_BY_SCREEN = {
+  deployments: [
+    { id: 'deployments', label: 'Deployments' },
+    { id: 'logs', label: 'Logs' },
+    { id: 'env', label: 'Environment' },
+  ],
+};
+
+function App() {
+  const [screen, setScreen] = useState(localStorage.getItem('gr-screen') || 'overview');
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [toasts, setToasts] = useState([]);
+  const [tab, setTab] = useState('deployments');
+
+  useEffect(() => { localStorage.setItem('gr-screen', screen); }, [screen]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setPaletteOpen(p => !p); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const pushToast = useCallback((text, kind = 'info') => {
+    const id = Math.random().toString(36).slice(2);
+    setToasts(ts => [...ts, { id, text, kind }]);
+  }, []);
+
+  const onCommand = (id) => {
+    setPaletteOpen(false);
+    if (id === 'go-overview') setScreen('overview');
+    else if (id === 'go-deployments') setScreen('deployments');
+    else if (id === 'go-settings') setScreen('settings');
+    else if (id === 'deploy') pushToast('Deploying main to production…', 'info');
+    else if (id === 'invite') pushToast('Invite link copied to clipboard.', 'success');
+    else pushToast('Action triggered.', 'info');
+  };
+
+  const crumbs = {
+    overview: ['acme', 'Overview'],
+    deployments: ['acme', 'graphite-web', 'Deployments'],
+    settings: ['acme', 'graphite-web', 'Settings'],
+  }[screen];
+
+  const tabs = TABS_BY_SCREEN[screen];
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar current={screen} onNavigate={setScreen} onOpenPalette={() => setPaletteOpen(true)} />
+      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <TopBar
+          crumbs={crumbs}
+          tabs={tabs}
+          activeTab={tab}
+          onTab={setTab}
+          right={
+            <>
+              <Button variant="ghost" icon="bell" size="sm" onClick={() => pushToast('No new notifications.', 'info')}></Button>
+              <Button variant="secondary" size="sm" onClick={() => pushToast('Deployed to production.', 'success')}>
+                Deploy
+              </Button>
+            </>
+          }
+        />
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          {screen === 'overview' && <OverviewScreen onOpenProject={(n) => { setScreen('deployments'); }} />}
+          {screen === 'deployments' && <DeploymentsScreen />}
+          {screen === 'settings' && <SettingsScreen />}
+        </div>
+      </main>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onCommand={onCommand} />
+      <ToastStack toasts={toasts} onDismiss={(id) => setToasts(ts => ts.filter(t => t.id !== id))} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

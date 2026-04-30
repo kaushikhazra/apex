@@ -137,6 +137,31 @@ Use code blocks for:
 - {Things intentionally deferred, with brief rationale}
 ```
 
+### Step 7: Write the task.md Skeleton
+
+After writing `design.md`, write `.claude/specs/{slug}/task.md` with one skeleton item per row in the Files Changed table.
+
+**Skeleton derivation rules:**
+
+- **One item per Files Changed row** (AC-6.2). Extract the file path from column 1 and the change summary from column 2.
+- **Item format** (AC-6.3, AC-6.4): Use `[ ]` pending status; name actor, action, and target; append a requirement-ref link.
+
+```markdown
+- [ ] **Implementer** updates `{file path}` — {change summary, abbreviated to ≤10 words}. _{requirement-ref}_
+```
+
+The `_{requirement-ref}_` is the AC identifier(s) that drive this change (from the Files Changed table's AC Trace column, or the closest driving requirement if no AC Trace column exists). It is not optional.
+
+**If design.md has no Files Changed table** (AC-6.5): Still create `task.md` with:
+
+```markdown
+- [ ] **Author** populates task.md manually — no Files Changed table found in design.md. _manual_
+```
+
+**Scope limit** (AC-6.6): Write only the Files Changed skeleton. Do not add free-form tasks, sub-tasks, or implementation notes. Free-form expansion is `/implement`'s responsibility.
+
+**If task.md already exists**: Do not overwrite it. If the existing task.md has fewer skeleton items than the Files Changed table has rows, append the missing items. If the existing task.md appears complete, leave it untouched and note that it already exists.
+
 ## Rules
 
 - **Requirements drive design.** Every design decision must trace back to a requirement or an architectural constraint from CLAUDE.md. If you can't justify a design element, it's scope creep.

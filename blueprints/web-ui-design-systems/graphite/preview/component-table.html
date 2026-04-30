@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Table row</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 210px; }
+  .tbl { width: 100%; border: 1px solid var(--border-default); border-radius: 6px; overflow: hidden; background: var(--bg-surface); }
+  .head { display: grid; grid-template-columns: 1fr 100px 120px 100px; padding: 8px 14px; background: var(--bg-raised); border-bottom: 1px solid var(--border-default); }
+  .head span { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); }
+  .row-r { display: grid; grid-template-columns: 1fr 100px 120px 100px; padding: 9px 14px; border-bottom: 1px solid var(--border-subtle); align-items: center; font-family: var(--font-mono); font-size: 12px; }
+  .row-r:last-child { border-bottom: none; }
+  .row-r.selected { background: var(--bg-hover); border-left: 2px solid var(--accent-500); padding-left: 12px; }
+  .primary { color: var(--fg-1); }
+  .muted { color: var(--fg-2); }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-1); }
+  .dot { width: 6px; height: 6px; border-radius: 999px; }
+</style></head><body>
+<span class="eyebrow" style="display:block; margin-bottom:10px;">Table · mono numerics, selected row</span>
+<div class="tbl">
+  <div class="head"><span>Name</span><span>Status</span><span>Deployed</span><span>Latency</span></div>
+  <div class="row-r"><span class="primary">graphite-web</span><span class="status"><span class="dot" style="background: var(--status-success)"></span>Ready</span><span class="muted">2m ago</span><span class="primary">142ms</span></div>
+  <div class="row-r selected"><span class="primary">graphite-api</span><span class="status"><span class="dot" style="background: var(--status-warning)"></span>Building</span><span class="muted">just now</span><span class="primary">—</span></div>
+  <div class="row-r"><span class="primary">graphite-worker</span><span class="status"><span class="dot" style="background: var(--status-success)"></span>Ready</span><span class="muted">4h ago</span><span class="primary">38ms</span></div>
+  <div class="row-r"><span class="primary">graphite-docs</span><span class="status"><span class="dot" style="background: var(--status-danger)"></span>Failed</span><span class="muted">1d ago</span><span class="muted">—</span></div>
+</div>
+</body></html>

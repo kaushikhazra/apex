@@ -1,0 +1,6 @@
+{
+  "name": "e-spec",
+  "description": "Extended spec-driven SDLC: requirement, design, implement, dryrun-design, dryrun-code, dryrun-blueprint, dryrun-context, dryrun-plan, research, spec",
+  "version": "1.0.0",
+  "author": { "name": "Kaushik" }
+}

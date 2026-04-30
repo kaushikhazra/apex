@@ -17,6 +17,7 @@ apex/
     interfaces/                  # CLI and web UI patterns
     libs/                        # Library patterns (memory, parsers, web, utils)
     mcps/                        # MCP server patterns
+    multi-agent/                 # Multi-agent consortium runtime patterns
     pydantic/                    # Pydantic AI agents, graphs, prompts
 ```
 
@@ -24,18 +25,35 @@ apex/
 
 ## SDLC Methods
 
-### Spec-Enhanced
+### Spec-Enhanced (`e-spec` plugin)
 
-A spec-driven development workflow where every feature follows a lifecycle before code is written.
+A spec-driven development workflow where every feature follows a lifecycle before code is written. Distributed as a Claude Code plugin under the `e-spec` namespace — skills are invoked as `/e-spec:requirement`, `/e-spec:design`, `/e-spec:dryrun-code`, etc.
 
-**Lifecycle**: `/spec` → `/requirement` → `/design` → `/implement`
+**Lifecycle**: `/e-spec:spec` → `/e-spec:requirement` → `/e-spec:design` → `/e-spec:implement`
 
-**Quality gates**: `/dryrun-design`, `/dryrun-code`, `/dryrun-plan`, `/dryrun-blueprint`, `/dryrun-context`
+**Quality gates**: `/e-spec:dryrun-design`, `/e-spec:dryrun-code`, `/e-spec:dryrun-plan`, `/e-spec:dryrun-blueprint`, `/e-spec:dryrun-context`
 
 **Includes**:
 - 10 Claude Code skills (full spec lifecycle + validation)
-- 8 hooks (branch guard, security, formatting, context evaluation)
+- 8 hooks (branch guard, security, formatting, context evaluation) — auto-fire on tool use, no per-project wiring needed
 - Portable `CLAUDE.md` with coding principles, git flow, and task rules
+
+**Install in any project**:
+
+```bash
+# Two-step marketplace install (preferred)
+/plugin marketplace add kaushikhazra/apex#develop
+/plugin install e-spec@apex-tools
+
+# Or local path during development (clone APEX first)
+claude --plugin-dir <path-to-apex>/sdlc/spec-enhanced
+```
+
+Marketplace manifest at `.claude-plugin/marketplace.json` declares the plugin's location inside this monorepo (subdirectory `sdlc/spec-enhanced/`).
+
+Optional dependency: install `ruff` (`pip install ruff` or `pipx install ruff`) on the target machine to enable the `ruff_format.py` post-edit hook.
+
+Plugin internals: see `sdlc/spec-enhanced/README.md`.
 
 ### Scaled Agile
 
@@ -58,11 +76,24 @@ A SAFe-based multi-level agent hierarchy for enterprise software delivery.
 | **Interfaces** | CLI (async, batch, interactive, subcommand) and Web (frontend, backend, integration) |
 | **Libraries** | Agent memory, embeddings, filesystem, knowledge base, parsers, config, web crawling |
 | **MCPs** | Base MCP pattern, filesystem, knowledge base, web crawler, web search |
+| **Multi-Agent** | Protocol composition, energy budgets, backpressure, message routing, agent lifecycle, tool plugins, CQRS bridge, identity registry |
 | **Pydantic AI** | Orchestrator, stateful/stateless subagents, graphs (base, stateful, with agents), prompt engineering |
 
 ---
 
 ## Usage
+
+**Spec-Enhanced (preferred — plugin install)**:
+
+```bash
+# Two-step marketplace install (preferred)
+/plugin marketplace add kaushikhazra/apex#develop
+/plugin install e-spec@apex-tools
+```
+
+After install, skills are available under `/e-spec:*` and hooks auto-fire on tool use. No per-project wiring; one `git pull` of APEX bumps every consumer project on the next plugin update.
+
+**Other methods + blueprints (copy-paste, until plugin-packaged)**:
 
 1. Clone the repo
 2. Copy the SDLC method that fits your project into your `.claude/` directory

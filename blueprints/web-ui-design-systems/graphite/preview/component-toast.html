@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Toast</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 160px; display: flex; flex-direction: column; gap: 10px; }
+  .toast {
+    background: var(--bg-raised);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--fg-1);
+  }
+  .toast .ico { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; }
+  .toast .meta { color: var(--fg-3); font-family: var(--font-mono); font-size: 11px; margin-left: auto; }
+  .toast.success .ico { background: var(--status-success); }
+  .toast.danger .ico { background: var(--status-danger); }
+  .toast.info .ico { background: var(--accent-500); }
+  .action { font-family: var(--font-mono); font-size: 11px; color: var(--fg-accent); text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; }
+</style></head><body>
+<span class="eyebrow">Toasts · bottom-right, auto-dismiss</span>
+<div class="toast success"><span class="ico"></span>Deployed to production.<span class="meta">2s · a3f9e2c</span></div>
+<div class="toast danger"><span class="ico"></span>Build failed: exit code 1.<span class="action">View logs</span></div>
+<div class="toast info"><span class="ico"></span>New version available: v2.3.0<span class="action">Update</span></div>
+</body></html>

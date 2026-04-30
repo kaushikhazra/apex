@@ -1,0 +1,38 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Nav item</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  body { height: 260px; display: grid; grid-template-columns: 240px 1fr; gap: 20px; }
+  .sidebar { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 1px; }
+  .nav {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 10px; border-radius: 3px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--fg-2);
+    position: relative;
+  }
+  .nav .ico { width: 14px; color: var(--fg-3); text-align: center; }
+  .nav:hover, .nav.hover { background: var(--bg-hover); color: var(--fg-1); }
+  .nav.selected { color: var(--fg-1); background: var(--bg-hover); }
+  .nav.selected::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px; background: var(--accent-500); border-radius: 2px; }
+  .sec { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); padding: 10px 10px 4px; }
+  .count { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--fg-3); }
+  .note { font-family: var(--font-sans); font-size: 12px; color: var(--fg-2); line-height: 1.6; }
+  .note strong { color: var(--fg-1); font-weight: 500; }
+</style></head><body>
+<div class="sidebar">
+  <div class="sec">Workspace</div>
+  <div class="nav"><span class="ico">⊞</span>Overview</div>
+  <div class="nav selected"><span class="ico">↗</span>Deployments<span class="count">12</span></div>
+  <div class="nav hover"><span class="ico">≡</span>Logs</div>
+  <div class="nav"><span class="ico">⚙</span>Settings</div>
+  <div class="sec">Team</div>
+  <div class="nav"><span class="ico">⊙</span>Members</div>
+  <div class="nav"><span class="ico">$</span>Billing</div>
+</div>
+<div class="note">
+  <span class="eyebrow" style="display:block; margin-bottom: 10px;">Nav item states</span>
+  <strong>Selected</strong> — 2px left accent bar, surface shifts to <code>--bg-hover</code>, text brightens to <code>--fg-1</code>.<br><br>
+  <strong>Hover</strong> — surface shifts to <code>--bg-hover</code>; no accent bar. Icon brightens one step.<br><br>
+  <strong>Default</strong> — <code>--fg-2</code> text on the panel surface.
+</div>
+</body></html>
