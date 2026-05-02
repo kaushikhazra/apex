@@ -1,6 +1,6 @@
 # Substrate Eval — Blueprint
 
-A reusable method for evaluating and repairing the **substrate** of an AI agent — the layered set of always-loaded and on-demand documents (CLAUDE.md, skills, blueprints, templates) that the agent reads and executes against. Substrate eval surfaces silent divergence between layers, locates the specific layer where each rule belongs, and iterates until the system reliably produces target behavior under fresh-worker dispatch.
+A reusable method for evaluating and repairing the **substrate** of an AI agent — the layered set of always-loaded and on-demand documents (CLAUDE.md, skills, reference patterns, templates) that the agent reads and executes against. Substrate eval surfaces silent divergence between layers, locates the specific layer where each rule belongs, and iterates until the system reliably produces target behavior under fresh-worker dispatch.
 
 This blueprint is prescriptive. It defines the dispatch protocol, the convergence bar, the divergence audit, and the recognition cues for common substrate failure modes. It was forged from a real evaluation and generalized into a repeatable process.
 
@@ -11,7 +11,7 @@ This blueprint is prescriptive. It defines the dispatch protocol, the convergenc
 The substrate is the medium an agent executes against — not an agreement, not a spec in the upfront-design sense. It is the imperative operating substance the agent reads at runtime:
 
 - **Always-loaded layer**: project `CLAUDE.md` (and any auto-loaded global rules).
-- **On-demand layer**: skills (`SKILL.md`), templates, blueprints — loaded when invoked or when context matches their description.
+- **On-demand layer**: skills (`SKILL.md`), templates, reference patterns — loaded when invoked or when context matches their description.
 - **Reference layer**: any document the substrate points an agent to follow (style guides, schemas, manifests).
 
 A substrate is *coherent* when all layers agree on rules, structure, and naming. A substrate is *divergent* when one layer says "use path X" and another says "use path Y", or one says "do A then B in one dispatch" and another says "each step is a separate dispatch." Workers behave non-deterministically on divergent substrates — sometimes following one layer, sometimes another. Convergence under a divergent substrate is luck, not validity.
@@ -62,7 +62,7 @@ Before each dispatch, restore the project to the canonical pre-phase state. Arch
 
 ### 5. The right adjustment
 
-Substrates are layered. When a rule is missing or wrong, the question is not just *fix it* but *fix it where*. Use the **scope test**: would a worker doing a different phase need this rule? If yes → CLAUDE.md (always-loaded). If no → the specific skill or blueprint that owns the phase. Misplacing rules either bloats the always-loaded layer (which agents start to generalize over instead of binding to) or hides them behind on-demand loads that won't fire when needed.
+Substrates are layered. When a rule is missing or wrong, the question is not just *fix it* but *fix it where*. Use the **scope test**: would a worker doing a different phase need this rule? If yes → CLAUDE.md (always-loaded). If no → the specific skill or reference pattern that owns the phase. Misplacing rules either bloats the always-loaded layer (which agents start to generalize over instead of binding to) or hides them behind on-demand loads that won't fire when needed.
 
 ---
 
@@ -74,7 +74,7 @@ Enumerate the layers the agent will read:
 
 1. The project's `CLAUDE.md`
 2. Every skill the workflow invokes (each `SKILL.md`)
-3. Every blueprint, template, or referenced document those skills depend on
+3. Every reference pattern, template, or other document those skills depend on
 4. Any manifest or structured document the substrate uses as a source of truth
 
 Record the path of each. This is the surface area you may edit.
@@ -122,7 +122,7 @@ Do not skip the third iter. The convergence bar is the empirical claim of substr
 
 Before declaring the substrate APEX-grade, run a final audit across layers:
 
-1. For each path/identifier referenced in CLAUDE.md, search every skill and blueprint for divergent references.
+1. For each path/identifier referenced in CLAUDE.md, search every skill and reference pattern for divergent references.
 2. For each rule expressed in CLAUDE.md, check that no skill contradicts it.
 3. For each rule in a skill, check that CLAUDE.md does not generalize it differently.
 
@@ -186,7 +186,7 @@ When two layers disagree, convergence in two-in-a-row is the worker happening to
 A completed substrate eval produces:
 
 1. **The eval log** — full iter table (dispatch ID, cost, turns, pass/fail, adjustment applied), phase closures, final convergence summary.
-2. **The repaired substrate** — CLAUDE.md, skills, blueprints, templates, all coherent and at canonical paths.
+2. **The repaired substrate** — CLAUDE.md, skills, reference patterns, templates, all coherent and at canonical paths.
 3. **A divergence-audit report** — what was checked across layers, what was found.
 4. **The bar achieved** — 1, 2, 3, or 3+audit, stated explicitly.
 
