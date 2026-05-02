@@ -2,7 +2,7 @@
 
 A reusable method for evaluating and repairing the **substrate** of an AI agent — the layered set of always-loaded and on-demand documents (CLAUDE.md, skills, blueprints, templates) that the agent reads and executes against. Substrate eval surfaces silent divergence between layers, locates the specific layer where each rule belongs, and iterates until the system reliably produces target behavior under fresh-worker dispatch.
 
-This blueprint is prescriptive. It defines the dispatch protocol, the convergence bar, the divergence audit, and the recognition cues for common substrate failure modes. It was forged from a real 31-iteration evaluation across a four-phase production pipeline and generalized into a repeatable process.
+This blueprint is prescriptive. It defines the dispatch protocol, the convergence bar, the divergence audit, and the recognition cues for common substrate failure modes. It was forged from a real evaluation and generalized into a repeatable process.
 
 ---
 
@@ -34,7 +34,7 @@ A substrate is *coherent* when all layers agree on rules, structure, and naming.
 
 | What | Why |
 |------|-----|
-| **Worker dispatch capability** | A way to launch a fresh agent with a controlled prompt against the project (e.g. Velhari `launch_worker`, or any agent-as-process harness). |
+| **Worker dispatch capability** | A way to launch a fresh agent with a controlled prompt against the project (any agent-as-process harness). |
 | **Persistable project state** | The substrate eval mutates project files. You must be able to checkpoint, archive, and restore state between iters. |
 | **A target behavior** | A workflow the substrate is supposed to drive (e.g. a multi-phase production pipeline). The eval tests whether the substrate reliably produces that behavior. |
 | **Pass criteria per phase** | A small set of concrete, falsifiable checks per phase (artifact paths, file counts, content invariants). The eval is only as sharp as these criteria. |
@@ -204,4 +204,4 @@ Stop the eval and surface the structural problem to the human owner. Substrate e
 
 ## Status
 
-Forged from the FPAI substrate eval, 2026-05-02. Generalized to apply to any project with layered agent substrates.
+Generalized to apply to any project with layered agent substrates.
