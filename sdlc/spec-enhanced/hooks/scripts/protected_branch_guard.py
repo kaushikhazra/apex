@@ -1,7 +1,8 @@
 """Hook: Protected branch guard.
 
-Blocks edits/commits/pushes on main and develop branches.
+Blocks edits/commits/pushes on main, master, and develop branches.
 Forces agents to create a feature/bugfix/hotfix/release branch first.
+Both 'main' and 'master' are treated identically — push is blocked on both.
 
 Event: PreToolUse (Edit|Write|Bash)
 """
@@ -11,7 +12,7 @@ import re
 import subprocess
 import sys
 
-PROTECTED_BRANCHES = ("main", "develop")
+PROTECTED_BRANCHES = ("main", "master", "develop")
 
 
 def get_current_branch():
@@ -43,10 +44,9 @@ def main():
             )
             sys.exit(2)
         # Block push to main (merges to develop need to be pushed)
-        if re.search(r"git\s+push", command) and branch == "main":
+        if re.search(r"git\s+push", command) and branch in ("main", "master"):
             print(
-                "BLOCKED: Cannot push to 'main'. "
-                "Use a release/* or hotfix/* branch.",
+                "BLOCKED: Cannot push to 'main'. Use a release/* or hotfix/* branch.",
                 file=sys.stderr,
             )
             sys.exit(2)

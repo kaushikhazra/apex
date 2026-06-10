@@ -24,9 +24,7 @@ def main():
     # Only check commands that start with git checkout -b or git switch -c
     # Use ^ or start after && / ; to avoid matching inside commit messages
     first_command = command.strip().split("&&")[0].strip()
-    match = re.match(
-        r"git\s+(checkout\s+-b|switch\s+-c)\s+(\S+)", first_command
-    )
+    match = re.match(r"git\s+(checkout\s+-b|switch\s+-c)\s+(\S+)", first_command)
     if not match:
         return
 
@@ -34,7 +32,7 @@ def main():
 
     # Allow protected branches (switching to, not creating — but -b
     # would fail anyway if they exist)
-    if branch_name in ("main", "develop"):
+    if branch_name in ("main", "master", "develop"):
         return
 
     if not any(branch_name.startswith(p) for p in VALID_PREFIXES):
