@@ -14,6 +14,7 @@ VALID_PREFIXES = (
     "bugfix/",
     "hotfix/",
     "release/",
+    "milestone/",
 )
 
 
