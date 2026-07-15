@@ -4,14 +4,9 @@
   "plugins": [
     {
       "name": "e-spec",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/kaushikhazra/apex.git",
-        "path": "sdlc/spec-enhanced",
-        "ref": "master"
-      },
+      "source": "./sdlc/spec-enhanced",
       "description": "Spec-enhanced SDLC plugin — 11 skills (requirement, design, implement, dryrun-design, dryrun-code, dryrun-blueprint, dryrun-context, dryrun-plan, research, spec, bootstrap) + 8 SDLC guardrail hooks (branch validator, security guard, ruff format, context tracker, etc.)",
-      "version": "1.1.0"
+      "version": "1.2.0"
     }
   ]
 }

@@ -55,7 +55,7 @@ Without the prefix, Claude Code resolves to project-local skills (if any) or ret
 
 ## Versioning
 
-Current version: **1.0.0**
+Current version: **1.2.0**
 
 This plugin follows [semver](https://semver.org/):
 - **Patch** (1.0.x): bug fixes to skill instructions, wording corrections
