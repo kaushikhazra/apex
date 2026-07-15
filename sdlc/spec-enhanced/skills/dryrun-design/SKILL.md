@@ -191,6 +191,46 @@ No file-level prescriptions found (no "Files Changed" table and no body sections
 
 Any Critical Gap from Pass 9 prevents a PASS verdict. Traceability gaps have no Warning tier — they are always Critical. A Warning is not sufficient to block PASS; a Critical Gap is.
 
+### Pass 10: Behavioral DoD Challenge
+
+This pass challenges the acceptance criteria against each story's stated **Purpose** to verify that the DoD actually proves the story's value is delivered — not merely that components exist. Do NOT skip this pass.
+
+For each user story in `requirement.md`:
+
+#### Step 1: Locate the Purpose
+
+Find the **Purpose** section of the story (added by the `requirement` skill). If the Purpose field is absent, emit a **Critical Gap**: the story has no Purpose and cannot be evaluated for behavioral coverage — this also enforces `requirement` rule (change 2).
+
+#### Step 2: Ask the Falsification Question
+
+Read the full acceptance criteria (DoD) for the story and ask:
+
+> *"If every one of these acceptance criteria passes, is the story's stated Purpose actually served?"*
+
+Specifically:
+- Can every AC be satisfied by **structural proxies** (e.g., a method returns a non-null object, a unit test on an intermediate function is green, a configuration flag is set) without the feature being usable through the user's real interface?
+- Is there **at least one AC that is satisfied ONLY by exercising the feature end-to-end through the interface the user actually uses** — CLI invocation, HTTP endpoint via Playwright, Chrome-extension driver, etc.?
+
+#### Step 3: Classify and Emit
+
+**If a behavioral AC is absent or insufficient**, emit a **Critical Gap**:
+
+```markdown
+### [C{N}] No behavioral AC for story {ABBR-N}: DoD satisfiable without delivering the Purpose
+- **Pass**: Pass 10 (Behavioral DoD Challenge)
+- **What**: Story {ABBR-N} Purpose states "{purpose text}". The acceptance criteria can be fully satisfied without exercising the feature through the user's real interface — {explain which ACs are structural proxies and why they do not prove end-to-end delivery}.
+- **Risk**: The story ships "done" with all tests green, yet the feature is either unreachable from the user interface, or a computed value is never rendered into the output the user sees. (This is the exact failure class seen in Axiom M3.)
+- **Fix**: Add an AC of the form: "{observable outcome} when exercised via {specific interface — CLI command / HTTP endpoint / browser action}". The AC must be falsifiable by a broken data path and cannot pass if the feature is unreachable.
+```
+
+**If unreachability is evident** (the design provides no interface path for the user to reach the feature), emit the same Critical Gap with the additional note: "UNREACHABILITY — the feature has no reachable path from the user interface. This is an automatic fail; the story cannot be approved until a reachable interface path exists."
+
+**If all stories have a Purpose and at least one behavioral, reachable-through-interface AC**, emit an Observation confirming behavioral DoD coverage.
+
+#### Verdict Impact
+
+Any Critical Gap from Pass 10 prevents a PASS verdict. Absence of a Purpose field or absence of a behavioral AC is always Critical — not a Warning. A design that cannot demonstrate behavioral coverage of its stories has not passed design review.
+
 ## Output
 
 ### Write the Report File
