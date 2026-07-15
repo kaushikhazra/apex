@@ -100,13 +100,17 @@ The requirement file follows this structure (adapt sections as needed — not ev
 
 ### {ABBR}-1: {Title}
 
+**Purpose:** {What this story serves — what the user does with it and what role it plays in the overall system. This section is generative: it MUST yield at least one behavioral acceptance criterion exercised through the real user interface. A Purpose that produces no behavioral AC is incomplete.}
+
 **As a** {actor},
 **I want to** {action},
 **so that** {benefit}.
 
+**Relates-to:** {Optional — comma-separated story or spec IDs whose functionality this story depends on or extends, e.g., "AUTH-2, M2-1". Gives implementers and reviewers fitment context. Note: structural design-to-task-to-AC traceability (Files Changed → task → AC linkage) is handled by `dryrun-design` Pass 9 per `specs/dryrun-design-traceability/`; this field covers upstream system-context linkage only.}
+
 **Acceptance Criteria:**
-- {Specific, testable criterion}
-- {Another criterion}
+- {Specific, testable criterion — states observable behavior, not a structural proxy such as "method returns non-null"}
+- **[behavioral]** {REQUIRED. Exercised through the interface the user actually uses (CLI invocation, HTTP endpoint via Playwright, Chrome-extension driver, etc.). States an observable end-to-end outcome: e.g., "after storing fact X via `tool store` and running `tool ask` in a new session, the answer reflects X". A story without this criterion is not complete.}
 
 ### {ABBR}-2: {Title}
 ...
@@ -155,3 +159,6 @@ path/to/config.yml    # Purpose
 - **Don't invent scope.** The requirement captures what the spec needs. Don't add features the user didn't ask for. If something seems missing, note it in an "Open Questions" section rather than inventing requirements.
 - **Respect existing content.** If requirement.md already has content, extend it — don't overwrite.
 - **Format consistency.** Match the style of existing requirement files in the project. Read one as reference in Step 2.
+- **Every story MUST have a Purpose.** The Purpose is generative, not descriptive — it MUST produce at least one behavioral acceptance criterion. A Purpose paragraph the implementer merely skims changes nothing; a Purpose that yields a testable, interface-exercised behavior closes the loop. Who checks: the `requirement` author writes Purpose + derives the behavioral AC from it; `dryrun-design` (Pass 10) checks that the Purpose actually produced a behavioral AC.
+- **Every story MUST include at least one behavioral acceptance criterion.** A behavioral AC is satisfied ONLY by exercising the feature through the interface the user actually uses — CLI invocation, HTTP/web via Playwright, Chrome-extension driver, etc. It states an observable outcome ("after storing fact X in session A and asking in session B via `axiom-cli`, the answer reflects X"), not a structural proxy ("method returns a non-null object" or "unit test green"). Test-suite green is necessary but NEVER sufficient. Who checks: the `requirement` author writes it; `dryrun-design` (Pass 10) enforces its presence; `implement`/verify must demonstrate it through the real interface.
+- **Unreachability is an automatic fail — hard stop.** If the feature cannot be exercised through the user's real interface, the story is NOT done. This is not a footnote or a warning — it is a blocking failure. This single rule converts "feature ships unreachable" from a missed gap into a pre-implementation blocking signal.

@@ -93,6 +93,56 @@ Execute these passes systematically. Do NOT skip any pass.
 - Are secrets/credentials handled safely (not logged, not in error messages)?
 - Are there any OWASP Top 10 vulnerabilities?
 
+### Pass 10: Value-Path Trace (Runtime Data Path End to End)
+
+This pass traces the **runtime data path** for the story's core value from the point of entry to the observable effect. It is NOT a static match against design components — it follows the actual execution flow in the code.
+
+Do NOT skip this pass. Green tests are NOT sufficient evidence that a value reaches its destination.
+
+#### Step 1: Identify the Core Value Flow
+
+From the story's `requirement.md` (particularly the **Purpose** and behavioral AC), identify:
+- **Entry point**: where the user's real interface delivers input to the system (CLI argument parsing, HTTP request handler, browser message handler, etc.)
+- **Core value**: the datum or computation the story claims to produce (recalled memory, assembled context, computed result, generated output, etc.)
+- **Observable effect**: what the user sees or can measure at the real interface (CLI output, HTTP response body, browser UI change, file written, etc.)
+
+#### Step 2: Trace the Path
+
+Follow the value through every function call, module boundary, and async hop from entry to effect:
+
+1. **Is the entry point reachable from the user's real interface?** (e.g., does the CLI expose a flag to enable the feature? Does the HTTP route exist?) If not, emit a **Bug** — the feature is unreachable and the story's behavioral AC cannot be satisfied.
+2. **Is the core value computed?** Locate where it is produced (assembled, recalled, derived).
+3. **Is the core value consumed at the right place?** Trace every reference to the value after it is produced. Does it reach the component that renders/outputs it? Or is it dropped — computed into a local variable, used only for a side-effect (e.g., to derive IDs), and then never referenced again?
+4. **Does the value reach the observable effect?** Confirm the final output (prompt, response body, CLI print, etc.) is constructed using the traced value, not a default or a different code path.
+
+#### Step 3: Distrust Intermediate-Assertion Tests
+
+Explicitly check: do the passing tests assert an **intermediate return value** (e.g., `assert assemble_context(…) == expected_object`) rather than the **end behavior** (e.g., `assert cli_output contains expected_fact`)? If so, emit a **Warning**: green tests on intermediate returns do not prove the value reaches the user — the test can pass even when the downstream path is broken or the value is dropped.
+
+#### Step 4: Emit Findings
+
+**Dropped value** (value computed then not consumed by the observable output):
+
+```markdown
+### [B{N}] Value computed but dropped — never reaches observable output
+- **File**: {path}:{line where value is produced}
+- **Pass**: Pass 10 (Value-Path Trace)
+- **What**: `{variable_name}` is assembled/computed at line {N} but is never referenced again after line {M}. It does not reach {the component that renders/outputs it}. The story's stated purpose ("{purpose}") is therefore not served even when the code runs without errors.
+- **Impact**: The feature silently no-ops. Tests may be green because they assert the intermediate return, not the end behavior.
+- **Fix**: Wire `{variable_name}` into {the consuming function/component} at {location}. Confirm with an end-to-end test through the real interface.
+```
+
+**Unreachable entry**:
+
+```markdown
+### [B{N}] Feature unreachable from user interface — no entry path exists
+- **File**: {cli.py / router.py / handler.py}:{line}
+- **Pass**: Pass 10 (Value-Path Trace)
+- **What**: The feature requires {flag/parameter/route} to activate, but {cli / API / browser interface} exposes no such path. Every downstream hook is behind a condition that can never be true from the real interface.
+- **Impact**: Behavioral AC cannot be demonstrated. The story is NOT done.
+- **Fix**: Add {--flag to CLI / route to API / message handler to extension} that enables the feature path.
+```
+
 ## Output
 
 ### Write the Report File
