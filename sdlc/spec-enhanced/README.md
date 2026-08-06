@@ -76,14 +76,16 @@ Eight SDLC guardrail hooks ship with this plugin and are auto-loaded when the pl
 
 | Script | Event | What it does |
 |--------|-------|-------------|
-| `branch_name_validator.py` | PreToolUse (Bash) | Blocks `git checkout -b` / `git switch -c` commands that don't follow git flow naming (`feature/*`, `bugfix/*`, `hotfix/*`, `release/*`). |
+| `branch_name_validator.py` | PreToolUse (Bash\|PowerShell) | Blocks `git checkout -b` / `git switch -c` commands that don't follow git flow naming (`feature/*`, `bugfix/*`, `hotfix/*`, `release/*`). |
 | `context_change_tracker.py` | PostToolUse (Edit\|Write) | Detects edits to context artifacts (CLAUDE.md, blueprints, plans) and appends a pending checklist entry to `.claude/eval.md` so they're validated before commit. |
 | `context_eval_clear.py` | PostToolUse (Bash\|PowerShell) | Clears `.claude/eval.md` and transient dryrun reports after a `git commit` whose message includes "context evaluated". |
 | `context_eval_gate.py` | Stop | Blocks the agent from stopping if `.claude/eval.md` has unchecked items; outputs a reminder to run the appropriate `/dryrun-*` skill. |
 | `cross_module_guard.py` | PreToolUse (Edit\|Write) | Blocks direct cross-module imports between isolated modules; all cross-module communication must go through the configured IPC mechanism. Configure `MODULES`, `SRC_ROOT`, and `IMPORT_PKG` per project. |
-| `protected_branch_guard.py` | PreToolUse (Edit\|Write\|Bash) | Blocks commits, protected-branch pushes, and source/test file edits on `main` and `develop`; forces use of feature/bugfix/hotfix/release branches. |
+| `protected_branch_guard.py` | PreToolUse (Edit\|Write\|Bash\|PowerShell) | Blocks commits, protected-branch pushes, and source/test file edits on `main` and `develop`; forces use of feature/bugfix/hotfix/release branches. |
 | `ruff_format.py` | PostToolUse (Edit\|Write) | Auto-runs `ruff check --fix` and `ruff format` on any edited `.py` file. Configure `RUFF_CMD` per project runner (uv, poetry, global). |
 | `security_guard.py` | PreToolUse (Edit\|Write\|Read\|Bash\|PowerShell) | Blocks access to sensitive files (`.env`, credentials, private keys) and destructive shell commands (`rm -rf /`, `Remove-Item -Recurse -Force`, `format c:`, etc.), plus destructive commands targeting `.git` by relative path. |
+
+Every hook that inspects a shell command matches **both** `Bash` and `PowerShell`. Covering one shell and not the other leaves the uncovered one as a working route around the guard — that is not hypothetical, it is how a repository's history was destroyed on 2026-08-04 after the bash form of the same command was correctly blocked.
 
 Hook configuration lives in `hooks/hooks.json` at the plugin root. Paths reference `${CLAUDE_PLUGIN_ROOT}/hooks/scripts/<script>.py` so they resolve correctly regardless of where the plugin is installed.
 

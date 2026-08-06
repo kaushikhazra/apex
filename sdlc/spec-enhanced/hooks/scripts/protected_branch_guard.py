@@ -4,7 +4,7 @@ Blocks edits/commits/pushes on main, master, and develop branches.
 Forces agents to create a feature/bugfix/hotfix/release branch first.
 Both 'main' and 'master' are treated identically — push is blocked on both.
 
-Event: PreToolUse (Edit|Write|Bash)
+Event: PreToolUse (Edit|Write|Bash|PowerShell)
 """
 
 import json
@@ -13,6 +13,11 @@ import subprocess
 import sys
 
 PROTECTED_BRANCHES = ("main", "master", "develop")
+
+# Tools whose input is a shell command rather than a file path. Both shells
+# must be inspected — a guard that covers one of them leaves the other as a
+# working route around it.
+COMMAND_TOOLS = ("Bash", "PowerShell")
 
 
 def get_current_branch():
@@ -33,7 +38,7 @@ def main():
     tool_name = data.get("tool_name", "")
     tool_input = data.get("tool_input", {})
 
-    if tool_name == "Bash":
+    if tool_name in COMMAND_TOOLS:
         command = tool_input.get("command", "")
         # Block direct commits on protected branches
         if re.search(r"git\s+commit", command):

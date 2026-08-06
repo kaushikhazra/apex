@@ -11,7 +11,7 @@
         ]
       },
       {
-        "matcher": "Edit|Write|Bash",
+        "matcher": "Edit|Write|Bash|PowerShell",
         "hooks": [
           {
             "type": "command",
@@ -20,7 +20,7 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",

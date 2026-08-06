@@ -106,5 +106,87 @@ class TestProtectedBranchGuard(unittest.TestCase):
         self.assertEqual(code, 0)
 
 
+class TestPowerShellParity(unittest.TestCase):
+    """Until the matcher and the tool-name test covered PowerShell, every
+    case below was an unguarded route onto a protected branch."""
+
+    # branch=master, PowerShell git commit → BLOCKED (exit 2)
+    def test_master_powershell_commit_blocked(self):
+        code = _run_main(
+            "master",
+            {
+                "tool_name": "PowerShell",
+                "tool_input": {"command": "git commit -m 'oops'"},
+            },
+        )
+        self.assertEqual(code, 2)
+
+    # branch=master, PowerShell git push → BLOCKED (exit 2)
+    def test_master_powershell_push_blocked(self):
+        code = _run_main(
+            "master",
+            {
+                "tool_name": "PowerShell",
+                "tool_input": {"command": "git push origin master"},
+            },
+        )
+        self.assertEqual(code, 2)
+
+    # branch=main, PowerShell git push → BLOCKED (exit 2)
+    def test_main_powershell_push_blocked(self):
+        code = _run_main(
+            "main",
+            {
+                "tool_name": "PowerShell",
+                "tool_input": {"command": "git push origin main"},
+            },
+        )
+        self.assertEqual(code, 2)
+
+    # branch=develop, PowerShell git commit → BLOCKED (exit 2)
+    def test_develop_powershell_commit_blocked(self):
+        code = _run_main(
+            "develop",
+            {
+                "tool_name": "PowerShell",
+                "tool_input": {"command": "git commit -m 'nope'"},
+            },
+        )
+        self.assertEqual(code, 2)
+
+    # PowerShell here-string commit message → still BLOCKED (exit 2)
+    def test_master_powershell_here_string_commit_blocked(self):
+        code = _run_main(
+            "master",
+            {
+                "tool_name": "PowerShell",
+                "tool_input": {"command": "git commit -m @'\nchore: sweep\n'@"},
+            },
+        )
+        self.assertEqual(code, 2)
+
+    # branch=bugfix/foo, PowerShell git commit → ALLOWED (exit 0)
+    def test_bugfix_powershell_commit_allowed(self):
+        code = _run_main(
+            "bugfix/foo",
+            {
+                "tool_name": "PowerShell",
+                "tool_input": {"command": "git commit -m 'ok'"},
+            },
+        )
+        self.assertEqual(code, 0)
+
+    # branch=master, PowerShell non-git command → ALLOWED (exit 0)
+    def test_master_powershell_read_only_allowed(self):
+        code = _run_main(
+            "master",
+            {
+                "tool_name": "PowerShell",
+                "tool_input": {"command": "git status --short"},
+            },
+        )
+        self.assertEqual(code, 0)
+
+
 if __name__ == "__main__":
     unittest.main()
