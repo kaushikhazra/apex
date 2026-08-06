@@ -98,10 +98,14 @@ def find_relative_git_target(command):
     That is sanctioned work, and a guard that blocks sanctioned work gets
     switched off, which is the failure mode this whole change exists to fix.
 
-    Known gap: a .git in second-or-later target position
-    (`rm -rf build .git`) is not caught here. Distinguishing that from prose
-    is not possible on bare words, and the recursive/forced forms of those
-    commands are already caught by DANGEROUS_COMMANDS.
+    Known gap: a .git in second-or-later target position is not caught here.
+    Distinguishing that from prose is not possible on bare words. The
+    PowerShell form (`Remove-Item build .git -Recurse`) is still caught by
+    DANGEROUS_COMMANDS via the verb-plus-flag pattern; the bash form
+    (`rm -rf build .git`) is caught by nothing, because the `rm -rf`
+    patterns require the target immediately after the flag. Stated rather
+    than papered over — a false coverage claim inside a guard is the same
+    defect as a guard that does not fire.
     """
     for line in command.splitlines():
         # Every verb on the line, not just the first — otherwise an earlier

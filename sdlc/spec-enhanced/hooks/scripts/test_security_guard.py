@@ -180,8 +180,15 @@ class TestRelativeGitGuard(unittest.TestCase):
         )
 
     def test_second_target_position_is_a_documented_gap(self):
-        # Not caught by this guard; the -rf form is caught by the pattern list.
+        # Not caught by this guard, and not by the pattern list either —
+        # the rm -rf patterns need the target right after the flag.
         self.assertEqual(_run_main(_command("PowerShell", "Remove-Item build .git")), 0)
+        self.assertEqual(_run_main(_command("Bash", "rm -rf build .git")), 0)
+
+    def test_second_target_position_with_flags_is_caught_in_powershell(self):
+        self.assertEqual(
+            _run_main(_command("PowerShell", "Remove-Item build .git -Recurse")), 2
+        )
 
     def test_verb_after_the_git_reference_on_one_line_is_allowed(self):
         self.assertEqual(
