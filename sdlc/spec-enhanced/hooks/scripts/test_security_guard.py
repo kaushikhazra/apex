@@ -163,6 +163,26 @@ class TestRelativeGitGuard(unittest.TestCase):
         )
         self.assertEqual(_run_main(_command("Bash", f"git commit -m '{message}'")), 0)
 
+    def test_single_line_prose_naming_verb_and_target_is_allowed(self):
+        """Caught live: this guard blocked a status message describing it.
+
+        The whole message is one line, so line-scoping alone does not save
+        it — .git must be the verb's first non-flag argument, not the
+        fifth word of a sentence.
+        """
+        prose = (
+            "my own guard blocked my first commit: the message named "
+            "Remove-Item on one line and .git on another, so I rescoped it"
+        )
+        self.assertEqual(
+            _run_main(_command("Bash", f"send-message apex velasari '{prose}'")),
+            0,
+        )
+
+    def test_second_target_position_is_a_documented_gap(self):
+        # Not caught by this guard; the -rf form is caught by the pattern list.
+        self.assertEqual(_run_main(_command("PowerShell", "Remove-Item build .git")), 0)
+
     def test_verb_after_the_git_reference_on_one_line_is_allowed(self):
         self.assertEqual(
             _run_main(_command("Bash", "echo '.git is protected, never rm it'")),

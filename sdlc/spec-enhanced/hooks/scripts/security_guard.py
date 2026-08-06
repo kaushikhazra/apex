@@ -91,25 +91,41 @@ def find_relative_git_target(command):
     often as after it.
 
     The conjunction is scoped to a single line, and the .git reference must
-    follow the verb. A statement lives on one line, so that is where a verb
-    and its target actually meet; scanning the whole command instead makes
-    the guard fire on any text that merely mentions both — a `git commit`
-    whose message discusses Remove-Item and .git, for one, which is
-    sanctioned work, and a guard that blocks sanctioned work gets disabled.
+    be the verb's **first non-flag argument** — its target, the way a shell
+    would parse it. Both constraints were earned: a whole-command scan
+    blocks any text that merely mentions a verb and .git together, which
+    includes a `git commit` or a status message describing this very guard.
+    That is sanctioned work, and a guard that blocks sanctioned work gets
+    switched off, which is the failure mode this whole change exists to fix.
+
+    Known gap: a .git in second-or-later target position
+    (`rm -rf build .git`) is not caught here. Distinguishing that from prose
+    is not possible on bare words, and the recursive/forced forms of those
+    commands are already caught by DANGEROUS_COMMANDS.
     """
     for line in command.splitlines():
-        verb = DESTRUCTIVE_VERB.search(line)
-        if not verb:
-            continue
+        # Every verb on the line, not just the first — otherwise an earlier
+        # incidental match shadows the real command behind it.
+        for verb in DESTRUCTIVE_VERB.finditer(line):
+            target = _relative_git_argument(line[verb.end() :])
+            if target:
+                return target
+    return None
 
-        for match in GIT_REFERENCE.finditer(line, verb.end()):
-            start = match.start()
-            while start > 0 and line[start - 1] not in TOKEN_BOUNDARY:
-                start -= 1
-            token = line[start : match.end()]
-            if ANCHORED_PATH.match(token):
-                continue
+
+def _relative_git_argument(tail):
+    """Return the verb's first non-flag argument if it is a relative .git."""
+    for raw in tail.split():
+        token = raw.strip("\"'`(){},;|")
+        if not token:
+            continue
+        # Flags are not the target; keep looking past them.
+        if token.startswith("-") or token.startswith("/"):
+            continue
+        # First real argument. It is the target or nothing is.
+        if GIT_REFERENCE.search(token) and not ANCHORED_PATH.match(token):
             return token
+        break
     return None
 
 
