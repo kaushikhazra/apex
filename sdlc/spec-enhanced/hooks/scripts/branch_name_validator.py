@@ -2,7 +2,11 @@
 
 Validates that new branches follow git flow naming conventions.
 
-Event: PreToolUse (Bash)
+Event: PreToolUse (Bash|PowerShell)
+
+Both shells are matched. The script needs no tool-name test of its own —
+both carry the command on the same `command` field — but until the matcher
+covered PowerShell, a branch created through it was never validated.
 """
 
 import json

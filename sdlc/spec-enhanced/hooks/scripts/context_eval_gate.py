@@ -7,10 +7,24 @@ Event: Stop
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 
 EVAL_FILE = ".claude/eval.md"
+
+
+def resolve_eval_path(data):
+    """Anchor on the session's project, never on the process cwd.
+
+    This must resolve identically to context_change_tracker.py, which
+    writes the file. A writer anchored on the project and a reader anchored
+    on the process cwd agree in the common case and diverge silently
+    otherwise — the tracker logs a pending review the gate never sees, and
+    the gate is dead again for a new reason.
+    """
+    project_dir = os.environ.get("CLAUDE_PROJECT_DIR") or data.get("cwd") or os.getcwd()
+    return Path(project_dir) / EVAL_FILE
 
 
 def main():
@@ -22,14 +36,15 @@ def main():
     if hook_input.get("stop_hook_active"):
         return
 
-    eval_path = Path(EVAL_FILE)
+    eval_path = resolve_eval_path(hook_input)
 
     if not eval_path.exists():
         return
 
     content = eval_path.read_text(encoding="utf-8")
     unchecked = [
-        line.strip() for line in content.splitlines()
+        line.strip()
+        for line in content.splitlines()
         if line.strip().startswith("- [ ]")
     ]
 
