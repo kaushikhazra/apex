@@ -5,24 +5,22 @@ Run from C:/Projects/APEX:
     python -m unittest sdlc/spec-enhanced/hooks/scripts/test_protected_branch_guard.py -v
 """
 
-import importlib
+import importlib.util
 import io
 import json
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # ---------------------------------------------------------------------------
 # Helper — load the module under test each time so module-level state is fresh
 # ---------------------------------------------------------------------------
-SCRIPT_PATH = "sdlc/spec-enhanced/hooks/scripts/protected_branch_guard"
+SCRIPT = str(Path(__file__).with_name("protected_branch_guard.py"))
 
 
 def _run_main(branch: str, stdin_data: dict) -> int:
     """Load (reload) the guard module, inject branch + stdin, call main()."""
-    spec = importlib.util.spec_from_file_location(
-        "protected_branch_guard",
-        "sdlc/spec-enhanced/hooks/scripts/protected_branch_guard.py",
-    )
+    spec = importlib.util.spec_from_file_location("protected_branch_guard", SCRIPT)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
