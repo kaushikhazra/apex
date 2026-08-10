@@ -7,7 +7,7 @@ allowed-tools: Bash
 # Cross-chat — Infra Setup
 
 Ensures the shared NATS resources that session cross-chat depends on exist:
-the `CROSSCHAT` JetStream stream (subjects `project.>`, 1-day retention) and
+the `CROSSCHAT` JetStream stream (subjects `crosschat.>`, 1-day retention) and
 the `crosschat-registry` KV bucket (5-minute entry TTL). See
 `.claude/specs/session-cross-chat/design.md` for the full architecture.
 

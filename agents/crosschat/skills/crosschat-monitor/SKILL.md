@@ -11,7 +11,7 @@ and loops indefinitely, printing one `CROSSCHAT_MESSAGE <json>` line per
 incoming message. See `.claude/specs/session-cross-chat/design.md`
 ("crosschat-monitor", revised post dryrun-design-2) for why this is a
 persistent process rather than the one-shot exit-to-wake pattern
-`nats_wait.py` uses — `project.{id}` is a multi-message channel, unlike a
+`nats_wait.py` uses — `crosschat.{id}` is a multi-message channel, unlike a
 worker's single-completion subject.
 
 ## Mechanism — one process, whole session
