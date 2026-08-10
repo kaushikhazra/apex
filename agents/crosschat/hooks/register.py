@@ -42,20 +42,67 @@ def emit(message: str) -> None:
     )
 
 
+def resolve_command(project_dir: str) -> list[str] | None:
+    """How to invoke crosschat here, or None if it is not installed.
+
+    Local first: a project that provisioned crosschat into its own
+    ``.claude/.venv`` is not on PATH, and checking PATH alone would report it
+    missing while it sits right there. Falls back to a global install.
+
+    Prefers ``python -m crosschat`` over the console script deliberately. The
+    script is a shim with an interpreter path baked in at install time, so it
+    breaks the moment the directory is renamed or moved; resolving the
+    interpreter now and running the module through it stores no path at all.
+    """
+    for candidate in (
+        os.path.join(project_dir, ".claude", ".venv", "Scripts", "python.exe"),
+        os.path.join(project_dir, ".claude", ".venv", "bin", "python"),
+    ):
+        if os.path.exists(candidate):
+            return [candidate, "-m", "crosschat"]
+
+    for name in ("python", "python3"):
+        found = shutil.which(name)
+        if found and _has_crosschat(found):
+            return [found, "-m", "crosschat"]
+
+    # Last resort: a console script on PATH, for installs that predate this.
+    if shutil.which("crosschat"):
+        return ["crosschat"]
+    return None
+
+
+def _has_crosschat(python_exe: str) -> bool:
+    try:
+        return (
+            subprocess.run(
+                [python_exe, "-c", "import crosschat"],
+                capture_output=True,
+                timeout=TIMEOUT_SECONDS,
+            ).returncode
+            == 0
+        )
+    except Exception:
+        return False
+
+
 def main() -> None:
     project_dir = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
 
-    if shutil.which("crosschat") is None:
+    command = resolve_command(project_dir)
+    if command is None:
         emit(
-            "Cross-chat is not available in this session: the `crosschat` command "
-            "is not on PATH. Install it with `pip install crosschat` if you want "
-            "this project reachable by other sessions. No action needed otherwise."
+            "Cross-chat is not available in this session: `crosschat` is not "
+            "installed in this project's .claude/.venv, and not importable by any "
+            "python on PATH. Run the crosschat-init skill to provision it if you "
+            "want this project reachable by other sessions. No action needed "
+            "otherwise."
         )
         return
 
     try:
         result = subprocess.run(
-            ["crosschat", "register", project_dir, NATS_URL],
+            [*command, "register", project_dir, NATS_URL],
             capture_output=True,
             text=True,
             timeout=TIMEOUT_SECONDS,
@@ -78,21 +125,27 @@ def main() -> None:
             project_id = line[len("CROSSCHAT_REGISTERED ") :].strip()
             break
 
+    # Hand back the exact invocation that worked here. A bare `crosschat` would
+    # be wrong for a project whose install lives in its own .claude/.venv, and
+    # the session has no way to know that.
+    monitor_command = " ".join(f'"{part}"' if " " in part else part for part in command)
+
     if project_id:
         emit(
             f"Cross-chat registered as project_id={project_id}. Launch "
-            f"`crosschat monitor {project_id} {NATS_URL}` as a background process "
-            "and watch it with the Monitor tool for the rest of this session — "
-            "each CROSSCHAT_MESSAGE line is one incoming message. Start it exactly "
-            "once; it runs for the whole session and is never relaunched between "
-            "messages. See the crosschat-monitor skill."
+            f"`{monitor_command} monitor {project_id} {NATS_URL}` as a background "
+            "process and watch it with the Monitor tool for the rest of this "
+            "session — each CROSSCHAT_MESSAGE line is one incoming message. Use "
+            "that command verbatim; this project's crosschat may not be on PATH. "
+            "Start it exactly once; it runs for the whole session and is never "
+            "relaunched between messages. See the crosschat-monitor skill."
         )
     else:
         emit(
             f"Cross-chat registration did not complete: {output or 'no output'}. "
-            "If this says init is required, run `crosschat init` once against this "
-            "NATS deployment, then restart the session. Session continues without "
-            "cross-chat."
+            f"If this says init is required, run `{monitor_command} init` once "
+            "against this NATS deployment, then restart the session. Session "
+            "continues without cross-chat."
         )
 
 
