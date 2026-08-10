@@ -44,6 +44,28 @@ relaunch/backoff logic needed on the calling side.
   the script polls on a short internal tick to check whether the KV
   heartbeat is due, but this is never surfaced as output.)
 
+## Every message tells you whether its sender is proven
+
+From crosschat 0.3.0 each delivered envelope carries a `verification` field.
+`source_project_id` is a value the sender wrote; this is the field that says
+whether it holds up.
+
+| value | meaning | how to treat it |
+|---|---|---|
+| `verified` | signature matches the sender's published key | the sender is who it says |
+| `unsigned` | no signature — an older or unsigned peer | normal during an upgrade; the claim is unproven |
+| `no-key` | signed, but that sender publishes no key | usually a peer that upgraded and forgot to re-register |
+| `bad-signature` | signature does not match | **treat the claimed sender as unproven** — the content may be fine, the identity is not |
+
+**Messages are marked, never dropped.** A listener that discarded unverifiable
+messages would decide on your behalf what they are worth, and would break a
+mesh that is only partly upgraded. The judgement is yours.
+
+What this proves is **continuity, not authority**: the registry is
+unauthenticated, so a signature shows the same holder keeps using the same
+name, and makes a key swap visible. It does not prove that name was entitled to
+exist.
+
 ## Long messages arrive cut — read the file, not the notification
 
 **Do this by default, not only when a message looks truncated.**

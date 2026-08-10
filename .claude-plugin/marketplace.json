@@ -1,6 +1,8 @@
 {
   "name": "apex-tools",
-  "owner": { "name": "Kaushik" },
+  "owner": {
+    "name": "Kaushik"
+  },
   "plugins": [
     {
       "name": "e-spec",
@@ -12,7 +14,7 @@
       "name": "crosschat",
       "source": "./agents/crosschat",
       "description": "A method for agents to talk to each other — 4 skills (init, register, send, monitor) + a SessionStart hook that registers this project on a NATS-backed message mesh and hands the live session its listener command. Any session can then message any registered project by id. Requires `pip install crosschat` and a reachable NATS server; degrades to an informational message when either is absent.",
-      "version": "0.3.0"
+      "version": "0.4.0"
     }
   ]
 }
