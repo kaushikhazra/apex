@@ -13,15 +13,30 @@ starts its listener (`crosschat-monitor`) for the rest of the session. See
 ## Mechanism
 
 ```
-crosschat register <project_path> [nats_url]
+crosschat register <project_path> [nats_url] [--id <project_id>]
 ```
 
-`crosschat` is a console script from the `crosschat` package
-(`src/crosschat/cli.py`) — this skill documents invoking it, not a
-separate implementation. `project_id` is derived from `project_path`
-(slugified directory name) — the single derivation point; no other
-cross-chat skill re-derives it. Prints `CROSSCHAT_REGISTERED <project_id>`
-on success.
+`crosschat` is a console script from the `crosschat` package (`pip install
+crosschat`) — this skill documents invoking it, not a separate
+implementation. Prints `CROSSCHAT_REGISTERED <project_id>` on success.
+
+**The id is the address.** It is resolved here and nowhere else, in this
+order:
+
+1. `--id <project_id>` — explicit, wins over everything.
+2. `CROSSCHAT_PROJECT_ID` in the environment.
+3. The slugified project directory name (`C:\Projects\velhari` → `velhari`).
+
+Prefer an explicit id for anything long-lived: the folder fallback ties a
+project's identity to its location, so renaming the directory renames the
+project and two projects cannot share a directory name. The environment
+variable is how an unattended SessionStart hook registers a project under a
+chosen id without the hook itself knowing it — set it in that project's own
+`.claude/settings.json` `env` block.
+
+Whatever the source, the id is normalized the same way (lowercased,
+non-alphanumeric runs collapsed to hyphens) because it has to be a legal NATS
+subject token. No other cross-chat skill re-derives it.
 
 If `crosschat-init` hasn't been run yet against this NATS deployment, prints
 `CROSSCHAT_INIT_REQUIRED <error>` and does **not** create the infra itself —
