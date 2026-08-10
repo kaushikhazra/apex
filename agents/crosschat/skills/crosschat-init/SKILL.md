@@ -1,10 +1,31 @@
 ---
 name: crosschat-init
-description: Provision the crosschat package for this project (local-first, into .claude/.venv when one exists) and set up the shared cross-chat NATS infrastructure — the CROSSCHAT JetStream stream and crosschat-registry KV bucket. Run once per project to install, and the infra half is a safe no-op after the first time on a given NATS deployment.
+description: RUN THIS FIRST after the crosschat plugin is installed — including when it was installed mid-session, where no SessionStart hook has fired and nothing else will prompt you. Provisions the crosschat package for this project (local-first, into .claude/.venv when one exists), then sets up the shared NATS infrastructure. Also run it whenever cross-chat reports that crosschat is not installed or not importable. Safe to re-run: both halves are idempotent.
 allowed-tools: Bash
 ---
 
 # Cross-chat — Provision and Infra Setup
+
+## When to run this — read first
+
+**Immediately after this plugin is installed.** Nothing else will provision the
+package: the plugin ships skills and a hook, and none of them install anything.
+
+**Especially when the plugin was installed mid-session.** The SessionStart hook
+that would otherwise tell you crosschat is missing has already run — it fired
+before this plugin existed in the session, so it will not fire again until the
+next session starts. Between now and then, nothing prompts you. **This skill is
+the only thing standing in that gap, and the session has to reach for it
+unprompted.** If the plugin appeared partway through this conversation, run
+this now rather than waiting.
+
+Also run it when anything reports that crosschat is not installed, not
+importable, or not on PATH.
+
+Both rounds are idempotent — re-running when everything is already in place
+costs one import check and one no-op call.
+
+---
 
 Two rounds. **Round 0 installs the package** for this project; **Round 1**
 ensures the shared NATS resources exist. Round 1 cannot run without Round 0,
