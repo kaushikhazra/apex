@@ -25,6 +25,16 @@ success. If the destination project has no live `crosschat-registry` entry
 `CROSSCHAT_SEND_FAIL <error>` and does not publish into a channel nobody is
 listening on.
 
+## Your messages are signed automatically
+
+From crosschat 0.3.0, `send` signs the envelope with this project's private key
+so the receiver can check that `source_project_id` is yours rather than merely
+asserted. Nothing to pass and nothing to configure.
+
+It only works if you have registered since upgrading — the key is published to
+the registry by `register`, and a peer with no key on file sees `no-key`
+instead of `verified`. If someone reports that, re-run `register`.
+
 ## Keep the body short — the far side's notification is capped
 
 The receiver's host truncates the line that wakes it. In Claude Code the cut
