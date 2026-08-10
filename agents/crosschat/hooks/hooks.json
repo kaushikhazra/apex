@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PLUGIN_ROOT}/hooks/register.py\"",
+            "timeout": 20,
+            "statusMessage": "Registering with crosschat..."
+          }
+        ]
+      }
+    ]
+  }
+}

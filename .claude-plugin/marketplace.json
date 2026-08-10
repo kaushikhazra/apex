@@ -7,6 +7,12 @@
       "source": "./sdlc/spec-enhanced",
       "description": "Spec-enhanced SDLC plugin — 11 skills (requirement, design, implement, dryrun-design, dryrun-code, dryrun-blueprint, dryrun-context, dryrun-plan, research, spec, bootstrap) + 8 SDLC guardrail hooks (branch validator, security guard, ruff format, context tracker, etc.)",
       "version": "1.2.1"
+    },
+    {
+      "name": "crosschat",
+      "source": "./agents/crosschat",
+      "description": "A method for agents to talk to each other — 4 skills (init, register, send, monitor) + a SessionStart hook that registers this project on a NATS-backed message mesh and hands the live session its listener command. Any session can then message any registered project by id. Requires `pip install crosschat` and a reachable NATS server; degrades to an informational message when either is absent.",
+      "version": "0.1.0"
     }
   ]
 }
