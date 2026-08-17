@@ -6,19 +6,34 @@
   "plugins": [
     {
       "name": "e-spec",
-      "source": "./sdlc/spec-enhanced",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/kaushikhazra/apex.git",
+        "path": "sdlc/spec-enhanced",
+        "ref": "master"
+      },
       "description": "Spec-enhanced SDLC plugin — 11 skills (requirement, design, implement, dryrun-design, dryrun-code, dryrun-blueprint, dryrun-context, dryrun-plan, research, spec, bootstrap) + 8 SDLC guardrail hooks (branch validator, security guard, ruff format, context tracker, etc.)",
       "version": "1.2.1"
     },
     {
       "name": "crosschat",
-      "source": "./agents/crosschat",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/kaushikhazra/apex.git",
+        "path": "agents/crosschat",
+        "ref": "master"
+      },
       "description": "A method for agents to talk to each other — 4 skills (init, register, send, monitor) + a SessionStart hook that registers this project on a NATS-backed message mesh and hands the live session its listener command. Any session can then message any registered project by id. Requires `pip install crosschat` and a reachable NATS server; degrades to an informational message when either is absent.",
       "version": "0.5.1"
     },
     {
       "name": "ai-engineering",
-      "source": "./ai-engineering",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/kaushikhazra/apex.git",
+        "path": "ai-engineering",
+        "ref": "master"
+      },
       "description": "Methods for engineering agent behaviour rather than agent code — 1 skill (auto-iterate), which runs a goal to convergence by iterating on a single document. The agent generates, checks the result against an immutable goal, rewrites its own instruction, and stops when the goal is met or a fail-safe expires. Ships a template folder that is copied rather than described.",
       "version": "0.1.0"
     }
