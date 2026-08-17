@@ -16,6 +16,7 @@ apex/
   blueprints/                    # WHAT you build — reusable technical patterns
     interfaces/                  # CLI and web UI patterns
     libs/                        # Library patterns (memory, parsers, web, utils)
+    local-agent/                 # Local-model agentic loop packaged as a skill
     mcps/                        # MCP server patterns
     multi-agent/                 # Multi-agent consortium runtime patterns
     pydantic/                    # Pydantic AI agents, graphs, prompts
@@ -75,6 +76,7 @@ A SAFe-based multi-level agent hierarchy for enterprise software delivery.
 |----------|--------------|
 | **Interfaces** | CLI (async, batch, interactive, subcommand) and Web (frontend, backend, integration) |
 | **Libraries** | Agent memory, embeddings, filesystem, knowledge base, parsers, config, web crawling |
+| **Local Agent** | Python-owned agentic loop against a local model, packaged as a skill: one invocation, one typed result |
 | **MCPs** | Base MCP pattern, filesystem, knowledge base, web crawler, web search |
 | **Multi-Agent** | Protocol composition, energy budgets, backpressure, message routing, agent lifecycle, tool plugins, CQRS bridge, identity registry |
 | **Pydantic AI** | Orchestrator, stateful/stateless subagents, graphs (base, stateful, with agents), prompt engineering |
