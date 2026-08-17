@@ -42,6 +42,27 @@ If `crosschat-init` hasn't been run yet against this NATS deployment, prints
 `CROSSCHAT_INIT_REQUIRED <error>` and does **not** create the infra itself —
 run `/crosschat-init` first, then retry.
 
+## Registering also publishes your public key
+
+From crosschat 0.3.0, `register` creates this project's Ed25519 keypair on
+first use and writes the **public** half into its registry entry. That is how
+other projects verify your messages: they read your key from the registry and
+check the signature on what you sent, instead of trusting the
+`source_project_id` field you filled in yourself.
+
+The private key stays at `~/.crosschat/keys/<project_id>.key` (override with
+`CROSSCHAT_KEY_DIR`). It is never published and never leaves the machine.
+
+**If you are upgrading an existing project, re-run `register` once.** The key
+is only written during registration, so a project that upgraded but did not
+re-register keeps sending signed messages that nobody can check — every peer
+sees `no-key` rather than `verified`. This is the one step that is easy to miss
+and produces a symptom that looks like a bug in signing.
+
+A project without PyNaCl registers with no key and sends unsigned. That is a
+supported state, not a failure: signed and unsigned peers interoperate, which
+is what lets a mesh upgrade one project at a time.
+
 ## The cycle
 
 1. **Register** — run the command above once, at session start.

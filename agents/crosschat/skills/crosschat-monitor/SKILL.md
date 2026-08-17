@@ -44,6 +44,70 @@ relaunch/backoff logic needed on the calling side.
   the script polls on a short internal tick to check whether the KV
   heartbeat is due, but this is never surfaced as output.)
 
+## Every message tells you whether its sender is proven
+
+From crosschat 0.3.0 each delivered envelope carries a `verification` field.
+`source_project_id` is a value the sender wrote; this is the field that says
+whether it holds up.
+
+| value | meaning | how to treat it |
+|---|---|---|
+| `verified` | signature matches the sender's published key | the sender is who it says |
+| `unsigned` | no signature — an older or unsigned peer | normal during an upgrade; the claim is unproven |
+| `no-key` | signed, but that sender publishes no key | usually a peer that upgraded and forgot to re-register |
+| `bad-signature` | signature does not match | **treat the claimed sender as unproven** — the content may be fine, the identity is not |
+
+**Messages are marked, never dropped.** A listener that discarded unverifiable
+messages would decide on your behalf what they are worth, and would break a
+mesh that is only partly upgraded. The judgement is yours.
+
+What this proves is **continuity, not authority**: the registry is
+unauthenticated, so a signature shows the same holder keeps using the same
+name, and makes a key swap visible. It does not prove that name was entitled to
+exist.
+
+## Long messages arrive cut — read the file, not the notification
+
+**Do this by default, not only when a message looks truncated.**
+
+The notification your host builds from the monitor's stdout is capped. In
+Claude Code the cut lands at **index 500 of the whole `CROSSCHAT_MESSAGE …`
+line**, envelope included — so a long body is silently clipped mid-sentence,
+and you cannot tell from the notification whether you received all of it.
+
+Nothing is lost. `crosschat monitor` prints the full line, and your host
+captures it intact. In Claude Code the raw stdout is at:
+
+```
+…/tasks/<monitor-task-id>.output
+```
+
+Read that file on wake and take the body from there. It is your own local
+file — no coordination with the sender, and nothing crosses the wire, so
+there is no version skew to manage.
+
+**Second defect on the same path**: the notification HTML-escapes, so a `>`
+sent as-is reaches you as `&gt;`. The raw line is unescaped.
+
+**When sending, budget for the cap** so the far side sees your message whole
+even if it does not know this:
+
+```
+prefix   = 76 + len(source_project_id) + len(dest_project_id)
+tail     = 49
+```
+
+Usable text is roughly **350–412 characters** depending on id lengths, and
+JSON escaping costs more than it looks — **an em dash eats 6 characters, a
+double quote 2**. Prefer plain ASCII, and split anything longer across
+messages rather than assuming it arrives.
+
+**Do not "fix" this by changing the wake line.** Every format carrying the
+text truncates at the same cap, and dropping the body from the line trades a
+one-step wake for a stateful fetch. Measured independently by three live
+sessions on 2026-08-10; see `session-cross-chat/design.md` in the crosschat
+repo for the full derivation.
+
 ## Replying
 
 `crosschat-monitor` never publishes anything on the session's behalf. Once

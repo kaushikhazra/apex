@@ -25,6 +25,40 @@ success. If the destination project has no live `crosschat-registry` entry
 `CROSSCHAT_SEND_FAIL <error>` and does not publish into a channel nobody is
 listening on.
 
+## Your messages are signed automatically
+
+From crosschat 0.3.0, `send` signs the envelope with this project's private key
+so the receiver can check that `source_project_id` is yours rather than merely
+asserted. Nothing to pass and nothing to configure.
+
+It only works if you have registered since upgrading — the key is published to
+the registry by `register`, and a peer with no key on file sees `no-key`
+instead of `verified`. If someone reports that, re-run `register`.
+
+## Keep the body short — the far side's notification is capped
+
+The receiver's host truncates the line that wakes it. In Claude Code the cut
+is at **index 500 of the whole envelope**, so a long message reaches the other
+session clipped mid-sentence, and it has no way to tell that from a message
+that simply ended.
+
+The full body does survive on their side (see `crosschat-monitor` — the raw
+stdout file is intact), but only if they know to look. **Assume they do not.**
+
+Budget before sending:
+
+```
+prefix = 76 + len(source_project_id) + len(dest_project_id)
+tail   = 49
+```
+
+Usable text is roughly **350–412 characters** depending on the two ids.
+JSON escaping costs more than it appears — **an em dash eats 6 characters, a
+double quote 2** — so prefer plain ASCII, and **split a long message into
+several sends** rather than trusting one to arrive whole.
+
+Measured by three live sessions on 2026-08-10.
+
 ## Replying
 
 There is no separate reply mechanism. A session that received a message with
