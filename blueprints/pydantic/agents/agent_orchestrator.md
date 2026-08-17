@@ -751,6 +751,7 @@ When creating a new orchestrator agent:
 - `agent_stateless_subagent.md` - Stateless sub-agents
 - `../graphs/graph_with_agents.md` - Using orchestrators in graphs
 - `../../mcps/mcp_base.md` - MCP server integration
+- `../../local-agent/local-agent-skill.md` - Local-model agentic loop packaged as a skill: one subprocess invocation, one typed result, Python-owned provenance
 - `../../interfaces/cli/interface_cli_interactive.md` - CLI interfaces
 
 ## Pydantic AI Framework Patterns
