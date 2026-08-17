@@ -1,0 +1,15 @@
+{
+  "name": "ai-engineering",
+  "description": "Methods for engineering agent behaviour rather than agent code. Currently one skill — auto-iterate, which runs a goal to convergence by iterating on a single document: the agent generates, checks the result against an immutable goal, rewrites its own instruction, and stops when the goal is met or a fail-safe expires. Each iteration is self-contained with its own goal, cycle log and artifact.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Kaushik"
+  },
+  "keywords": [
+    "loop-engineering",
+    "self-modifying",
+    "convergence",
+    "autonomous",
+    "agent-behaviour"
+  ]
+}
