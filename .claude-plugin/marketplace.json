@@ -34,8 +34,8 @@
         "path": "ai-engineering",
         "ref": "master"
       },
-      "description": "Methods for engineering agent behaviour rather than agent code — 1 skill (auto-iterate), which runs a goal to convergence by iterating on a single document. The agent generates, checks the result against an immutable goal, rewrites its own instruction, and stops when the goal is met or a fail-safe expires. Ships a template folder that is copied rather than described.",
-      "version": "0.1.0"
+      "description": "Methods for engineering agent behaviour rather than agent code — 2 skills. `auto-iterate` runs a goal to convergence by iterating on a single document: the agent generates, checks the result against an immutable goal, rewrites its own instruction, and stops when the goal is met or a fail-safe expires; it ships a template folder that is copied rather than described. `local-model-calibration` applies the same probe-score-adjust-plateau shape to a model rather than a document, running one local model through six SDLC phases against ground truth and producing a capability map of baseline, best and ceiling per phase.",
+      "version": "0.2.0"
     }
   ]
 }

@@ -1,5 +1,5 @@
 ---
-name: blueprint-model-calibration
+name: local-model-calibration
 description: |
   Use when evaluating, comparing, or re-calibrating any LLM for APEX SDLC roles. Invoke when:
   - Onboarding a new local model (Ollama, Gemma, Mistral, Llama) to assess SDLC fitness
@@ -17,11 +17,11 @@ description: |
   SDLC-specific only — not general benchmarks.
 ---
 
-# Model Calibration — Blueprint
+# Local Model Calibration
 
 A reusable method for evaluating any LLM's capability across the spec-driven SDLC. Run a model through each SDLC phase, score it on domain-specific rubrics, iteratively optimize prompts until you hit the model's ceiling, and produce a capability map that tells you exactly what the model can and cannot do.
 
-This blueprint is prescriptive: it defines the phases, the rubrics, the iteration loop, and the prompt engineering playbook. It was forged from a real 6-phase evaluation of Gemma 4 E2B (2.3B params) and generalized into a repeatable process.
+The method is prescriptive: it defines the phases, the rubrics, the iteration loop, and the prompt engineering playbook. It was forged from a real 6-phase evaluation of Gemma 4 E2B (2.3B params) and generalized into a repeatable process.
 
 ---
 
