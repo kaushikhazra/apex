@@ -4,7 +4,7 @@ Every test runs inside its own TemporaryDirectory with CLAUDE_PROJECT_DIR
 pointed at it, so no real eval.md is ever read or written.
 
 Run from C:/Projects/APEX:
-    python -m unittest sdlc/spec-enhanced/hooks/scripts/test_context_change_tracker.py -v
+    python -m unittest plugins/e-spec/hooks/scripts/test_context_change_tracker.py -v
 """
 
 import importlib.util
@@ -132,9 +132,9 @@ class TestDedup(TrackerTestCase):
 
     def test_different_paths_do_not_collide_on_substring(self):
         self.run_hook("C:/proj/CLAUDE.md")
-        self.run_hook("C:/proj/sdlc/spec-enhanced/CLAUDE.md")
+        self.run_hook("C:/proj/plugins/e-spec/CLAUDE.md")
         self.assertEqual(self.pending_count("C:/proj/CLAUDE.md"), 1)
-        self.assertEqual(self.pending_count("C:/proj/sdlc/spec-enhanced/CLAUDE.md"), 1)
+        self.assertEqual(self.pending_count("C:/proj/plugins/e-spec/CLAUDE.md"), 1)
 
     def test_backslash_path_is_normalized(self):
         self.run_hook(r"C:\proj\CLAUDE.md")

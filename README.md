@@ -10,8 +10,13 @@ Pick a methodology. Grab the blueprints you need. Go.
 
 ```
 apex/
-  sdlc/                          # HOW you work — development methodologies
-    spec-enhanced/               # Spec-driven development with skills + hooks
+  .claude-plugin/
+    marketplace.json             # The catalogue — one entry per plugin below
+  plugins/                       # Everything distributed as a Claude Code plugin
+    e-spec/                      # Spec-driven SDLC — 11 skills + 8 hooks
+    crosschat/                   # Agent-to-agent messaging over NATS
+    ai-engineering/              # Methods for engineering agent behaviour
+  sdlc/                          # HOW you work — methods not packaged as plugins
     scaled-agile/                # SAFe-based agent hierarchy
   blueprints/                    # WHAT you build — reusable technical patterns
     interfaces/                  # CLI and web UI patterns
@@ -20,7 +25,10 @@ apex/
     mcps/                        # MCP server patterns
     multi-agent/                 # Multi-agent consortium runtime patterns
     pydantic/                    # Pydantic AI agents, graphs, prompts
+    web-ui-design-systems/       # Design system references
 ```
+
+Every plugin lives under `plugins/<name>`, named for the plugin it publishes. `sdlc/` and `blueprints/` hold material that is copied rather than installed.
 
 ---
 
@@ -43,18 +51,18 @@ A spec-driven development workflow where every feature follows a lifecycle befor
 
 ```bash
 # Two-step marketplace install (preferred)
-/plugin marketplace add kaushikhazra/apex#develop
+/plugin marketplace add kaushikhazra/apex
 /plugin install e-spec@apex-tools
 
 # Or local path during development (clone APEX first)
-claude --plugin-dir <path-to-apex>/sdlc/spec-enhanced
+claude --plugin-dir <path-to-apex>/plugins/e-spec
 ```
 
-Marketplace manifest at `.claude-plugin/marketplace.json` declares the plugin's location inside this monorepo (subdirectory `sdlc/spec-enhanced/`).
+Marketplace manifest at `.claude-plugin/marketplace.json` declares the plugin's location inside this monorepo (subdirectory `plugins/e-spec/`).
 
 Optional dependency: install `ruff` (`pip install ruff` or `pipx install ruff`) on the target machine to enable the `ruff_format.py` post-edit hook.
 
-Plugin internals: see `sdlc/spec-enhanced/README.md`.
+Plugin internals: see `plugins/e-spec/README.md`.
 
 ### Scaled Agile
 
@@ -89,7 +97,7 @@ A SAFe-based multi-level agent hierarchy for enterprise software delivery.
 
 ```bash
 # Two-step marketplace install (preferred)
-/plugin marketplace add kaushikhazra/apex#develop
+/plugin marketplace add kaushikhazra/apex
 /plugin install e-spec@apex-tools
 ```
 

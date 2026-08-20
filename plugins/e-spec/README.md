@@ -9,13 +9,13 @@
 ### Local (from disk)
 
 ```bash
-claude --plugin-dir C:/Projects/APEX/sdlc/spec-enhanced
+claude --plugin-dir C:/Projects/APEX/plugins/e-spec
 ```
 
 ### From git
 
 ```
-/plugin install <repo-url>#main:sdlc/spec-enhanced
+/plugin install <repo-url>#main:plugins/e-spec
 ```
 
 Replace `<repo-url>` with the APEX repository URL (e.g., `https://github.com/kaushikhazra/APEX`).

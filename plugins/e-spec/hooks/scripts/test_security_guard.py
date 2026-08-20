@@ -4,7 +4,7 @@ No filesystem or shell is touched — main() is fed a payload on stdin and its
 exit code inspected.
 
 Run from C:/Projects/APEX:
-    python -m unittest sdlc/spec-enhanced/hooks/scripts/test_security_guard.py -v
+    python -m unittest plugins/e-spec/hooks/scripts/test_security_guard.py -v
 """
 
 import importlib.util

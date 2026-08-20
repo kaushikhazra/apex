@@ -4,7 +4,7 @@ Every test runs inside its own TemporaryDirectory with CLAUDE_PROJECT_DIR
 pointed at it, so no real eval.md is ever read.
 
 Run from C:/Projects/APEX:
-    python -m unittest sdlc/spec-enhanced/hooks/scripts/test_context_eval_gate.py -v
+    python -m unittest plugins/e-spec/hooks/scripts/test_context_eval_gate.py -v
 """
 
 import importlib.util

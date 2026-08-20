@@ -2,7 +2,7 @@
 
 Mocks subprocess.run so no real git repo is required.
 Run from C:/Projects/APEX:
-    python -m unittest sdlc/spec-enhanced/hooks/scripts/test_protected_branch_guard.py -v
+    python -m unittest plugins/e-spec/hooks/scripts/test_protected_branch_guard.py -v
 """
 
 import importlib.util

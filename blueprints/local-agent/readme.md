@@ -30,7 +30,7 @@ pattern inside a library-specific family. It cross-references that family instea
 
 The provider is swappable by model string alone — the patterns hold for any local host.
 To decide *which* local model is fit for the work you are delegating, calibrate it first:
-`ai-engineering/skills/local-model-calibration/SKILL.md`.
+`plugins/ai-engineering/skills/local-model-calibration/SKILL.md`.
 
 ## The Two Principles
 
