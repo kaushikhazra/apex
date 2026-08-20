@@ -117,4 +117,4 @@ Methods and blueprints are independent — mix and match as needed.
 
 ## License
 
-Private repository. Internal use only.
+Public repository. No license file yet — all rights reserved by default until one is added.
