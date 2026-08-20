@@ -23,14 +23,14 @@ start_knowledge_base.bat (at project root)
 ```python
 import os
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 from src.libs.knowledge_base.knowledge_vectordb import search_knowledge, list_all_chunks, get_all_knowledge_collections
 
 load_dotenv()
 
 port = int(os.getenv('MCP_KNOWLEDGE_BASE_PORT', 8003))
-server = FastMCP(name="Knowledge Base MCP", port=port)
+server = FastMCP(name="Knowledge Base MCP")
 
 
 @server.tool()
@@ -104,8 +104,25 @@ def list_indexed_content(knowledge_dir: str = "guides") -> str:
 
 
 if __name__=='__main__':
-    server.run(transport='streamable-http')
+    server.run(transport='http', port=port)
 ```
+
+### Unknown arguments are rejected
+
+The import above is `fastmcp`, not `mcp.server.fastmcp`. That is deliberate and it is the
+difference between a typo failing and a typo passing silently: the SDK-bundled FastMCP
+leaves its argument model at Pydantic's default of `extra="ignore"`, so an argument the
+tool never declared is discarded and the call returns success.
+
+```python
+await client.call_tool("search_guide_knowledge", {"query": "onboarding", "top_k": 5})    # succeeds
+await client.call_tool("search_guide_knowledge", {"query": "onboarding", "topk": 5})   # ToolError: unexpected keyword argument 'topk'
+```
+
+The second call is the one that matters. Under the bundled import it would have returned
+success, having quietly thrown `topk` away.
+
+See `../mcp_strict_arguments.md` for the rule, the reproduction, and how to verify a server enforces it.
 
 ### `__init__.py`
 
@@ -604,5 +621,6 @@ class SupportAgent:
 ## Related Blueprints
 
 - `mcp_base.md` - Base MCP server structure
+- `mcp_strict_arguments.md` - Rejecting unknown tool arguments (required)
 - `web/mcp_web_search.md` - Web-based information retrieval
 - `filesystem/mcp_filesystem.md` - File operations for knowledge management

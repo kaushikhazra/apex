@@ -23,12 +23,12 @@ start_<server_name>.bat (at project root)
 ```python
 import os
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 load_dotenv()
 
 port = int(os.getenv('MCP_<SERVER_NAME>_PORT', 8000))
-server = FastMCP(name="<Server Display Name>", port=port)
+server = FastMCP(name="<Server Display Name>")
 
 @server.tool()
 async def tool_name(arg1: str, arg2: int) -> str:
@@ -48,8 +48,25 @@ async def tool_name(arg1: str, arg2: int) -> str:
     return result
 
 if __name__=='__main__':
-    server.run(transport='streamable-http')
+    server.run(transport='http', port=port)
 ```
+
+### Unknown arguments are rejected
+
+The import above is `fastmcp`, not `mcp.server.fastmcp`. That is deliberate and it is the
+difference between a typo failing and a typo passing silently: the SDK-bundled FastMCP
+leaves its argument model at Pydantic's default of `extra="ignore"`, so an argument the
+tool never declared is discarded and the call returns success.
+
+```python
+await client.call_tool("tool_name", {"arg1": "x", "arg2": 1})    # succeeds
+await client.call_tool("tool_name", {"arg1": "x", "arg_2": 1})   # ToolError: unexpected keyword argument 'arg_2'
+```
+
+The second call is the one that matters. Under the bundled import it would have returned
+success, having quietly thrown `arg_2` away.
+
+See `mcp_strict_arguments.md` for the rule, the reproduction, and how to verify a server enforces it.
 
 ### `__init__.py`
 
@@ -317,6 +334,7 @@ If you want to create a custom tool that uses MCP functionality, you would call 
 ## Examples
 
 See specific MCP blueprints:
+- `mcp_strict_arguments.md` - Rejecting unknown tool arguments (required for every server here)
 - `web/mcp_web_search.md` - Web search with DuckDuckGo
 - `web/mcp_web_crawler.md` - URL content extraction
 - `filesystem/mcp_filesystem.md` - File and directory operations
