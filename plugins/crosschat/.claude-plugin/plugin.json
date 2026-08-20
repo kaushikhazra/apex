@@ -1,7 +1,8 @@
 {
   "name": "crosschat",
   "description": "A method for agents to talk to each other. Registers this project on a NATS-backed message mesh at session start and starts its listener, so any other session can message it by project id. Requires the `crosschat` PyPI package (pip install crosschat) and a reachable NATS server.",
-  "version": "0.5.2",
+  "version": "0.5.3",
+  "license": "Apache-2.0",
   "author": {
     "name": "Kaushik"
   },

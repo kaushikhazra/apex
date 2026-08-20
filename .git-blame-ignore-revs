@@ -1,0 +1,9 @@
+# Commits that touched every line without changing any of them. Skip them in
+# blame so it points at whoever last changed the content.
+#
+# Enable locally with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub reads this file automatically.
+
+# Renormalise line endings to LF (52 files, whitespace only)
+e3bd50699d6772e9c3a63cc29bac8ca94af402c6
