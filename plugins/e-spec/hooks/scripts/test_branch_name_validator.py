@@ -4,7 +4,7 @@ No git repo required — main() is fed a payload on stdin and its exit code
 inspected.
 
 Run from C:/Projects/APEX:
-    python -m unittest sdlc/spec-enhanced/hooks/scripts/test_branch_name_validator.py -v
+    python -m unittest plugins/e-spec/hooks/scripts/test_branch_name_validator.py -v
 """
 
 import importlib.util

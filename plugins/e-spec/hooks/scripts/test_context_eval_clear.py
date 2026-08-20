@@ -8,7 +8,7 @@ What the hook deletes is a settled decision and is not under test here;
 these cover the plumbing: where it looks, and which shells reach it.
 
 Run from C:/Projects/APEX:
-    python -m unittest sdlc/spec-enhanced/hooks/scripts/test_context_eval_clear.py -v
+    python -m unittest plugins/e-spec/hooks/scripts/test_context_eval_clear.py -v
 """
 
 import importlib.util
