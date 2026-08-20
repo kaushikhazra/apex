@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "apex-tools",
+  "description": "APEX — AI Powered Enterprise Execution. Reusable development methodologies and architectural blueprints for AI-powered software delivery with Claude Code. This marketplace ships e-spec (spec-driven SDLC, 11 skills and 8 hooks), crosschat (agent-to-agent messaging over NATS), and ai-engineering (methods for engineering agent behaviour).",
   "owner": {
     "name": "Kaushik"
   },
