@@ -117,4 +117,4 @@ Methods and blueprints are independent — mix and match as needed.
 
 ## License
 
-Public repository. No license file yet — all rights reserved by default until one is added.
+Licensed under the [Apache License 2.0](LICENSE).
