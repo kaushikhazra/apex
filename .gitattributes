@@ -1,0 +1,15 @@
+# Line endings are pinned here because nothing else pins them: core.autocrlf
+# is false on the machines this repo is developed on, so whatever a tool
+# happens to write is what gets committed. On 18 August 2026 something
+# rewrote 11 files from LF to CRLF in a working tree, turning 14 real changed
+# lines into ~1,799 phantom ones and hiding an edit to test_security_guard.py
+# inside a whitespace diff. The cause was never identified, which is the
+# argument for pinning rather than for finding it.
+#
+# Everything here is text: Markdown, JSON, Python, HTML/JSX/CSS/SVG. None of
+# it needs CRLF, and every tool that reads it accepts LF on Windows.
+* text=auto eol=lf
+
+# If a Windows shell script is ever added, it needs CRLF to run.
+*.bat text eol=crlf
+*.cmd text eol=crlf
