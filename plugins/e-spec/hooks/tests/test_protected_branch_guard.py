@@ -227,3 +227,75 @@ class TestBashCommands:
     def test_non_git_command_allowed(self, repo_on_master):
         code, stderr = _run_guard("Bash", {"command": "ls -la"}, cwd=repo_on_master)
         assert code == 0, f"Non-git commands should be allowed, got: {stderr}"
+
+
+# ── Defect: commit/push detection too broad ──────────────────────────
+
+
+class TestReadOnlyGitCommandsAllowed:
+    """Read-only git commands containing 'commit' or 'push' as arguments
+    (not subcommands) must NOT be blocked."""
+
+    def test_git_log_grep_commit_allowed(self, repo_on_master):
+        command = "git log --grep commit"
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_master)
+        assert code == 0, f"git log --grep commit is read-only, got: {stderr}"
+
+    def test_git_log_oneline_pipe_grep_commit_allowed(self, repo_on_master):
+        command = "git log --oneline | grep commit"
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_master)
+        assert code == 0, f"git log piped to grep commit is read-only, got: {stderr}"
+
+    def test_real_commit_still_blocked(self, repo_on_master):
+        command = 'git commit -m "x"'
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_master)
+        assert code == 2, "Direct git commit should still be blocked on master"
+        assert "BLOCKED" in stderr
+
+    def test_commit_with_global_option_C_blocked(self, repo_on_master):
+        command = f"git -C {repo_on_master} commit -m x"
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_master)
+        assert code == 2, "git -C <path> commit should be blocked on master"
+        assert "BLOCKED" in stderr
+
+    def test_commit_with_global_option_c_blocked(self, repo_on_master):
+        command = "git -c user.name=x commit"
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_master)
+        assert code == 2, "git -c k=v commit should be blocked on master"
+        assert "BLOCKED" in stderr
+
+    def test_push_origin_main_blocked(self, repo_on_master):
+        command = "git push origin main"
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_master)
+        assert code == 2, "git push should be blocked on master"
+        assert "BLOCKED" in stderr
+
+
+# ── Defect: quoted path with spaces in git -C ────────────────────────
+
+
+class TestQuotedPathWithSpaces:
+    """git -C with a quoted path containing spaces must resolve correctly."""
+
+    @pytest.fixture(scope="class")
+    def repo_with_space(self):
+        path = _init_repo(_tmp_dir("apex-guard-x") + "/my repo", branch="master")
+        os.makedirs(os.path.join(path, "src"), exist_ok=True)
+        yield path
+        _force_rmtree(os.path.join(TMP_ROOT, "apex-guard-x"))
+
+    def test_quoted_path_commit_blocked(self, repo_with_space, repo_on_feature):
+        command = f'git -C "{repo_with_space}" commit -m x'
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_feature)
+        assert code == 2, (
+            f"Commit via quoted -C path on master should be blocked, got: {stderr}"
+        )
+        assert "BLOCKED" in stderr
+
+    def test_single_quoted_path_commit_blocked(self, repo_with_space, repo_on_feature):
+        command = f"git -C '{repo_with_space}' commit -m x"
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_feature)
+        assert code == 2, (
+            f"Commit via single-quoted -C path on master should be blocked, got: {stderr}"
+        )
+        assert "BLOCKED" in stderr

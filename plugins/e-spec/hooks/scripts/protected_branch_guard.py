@@ -15,7 +15,7 @@ Event: PreToolUse (Edit|Write|Bash|PowerShell)
 
 import json
 import os
-import re
+import shlex
 import subprocess
 import sys
 
@@ -104,27 +104,111 @@ def is_protected_source_path(file_path, repo_root):
     )
 
 
+def _extract_git_subcommand(command):
+    """Find the git subcommand, skipping global options.
+
+    Global options that take a value: -C <path>, -c <key=val>,
+    --git-dir=.., --work-tree=.., --namespace=.., --exec-path=..
+    Global flags (no value): --no-pager, --bare, --no-replace-objects, etc.
+
+    Returns the first non-option token after 'git', or None if the
+    command doesn't start with git (after pipe splitting).
+    """
+    # Only look at the segment before any pipe — later segments are
+    # separate commands (e.g. `git log | grep commit`).
+    segment = command.split("|")[0]
+    tokens = _shlex_split(segment)
+
+    # Find the 'git' token
+    try:
+        git_idx = tokens.index("git")
+    except ValueError:
+        return None
+
+    # Walk tokens after 'git', skipping global options
+    # Options that consume the NEXT token as their value:
+    options_with_value = {
+        "-C",
+        "-c",
+        "--git-dir",
+        "--work-tree",
+        "--namespace",
+        "--exec-path",
+        "--super-prefix",
+    }
+    i = git_idx + 1
+    while i < len(tokens):
+        tok = tokens[i]
+
+        # Options that consume a following value token
+        if tok in options_with_value:
+            i += 2  # skip the option and its value
+            continue
+
+        # --key=value style global options (skip)
+        if tok.startswith("--") and "=" in tok:
+            i += 1
+            continue
+
+        # Any other flag (--no-pager, --bare, etc.)
+        if tok.startswith("-"):
+            i += 1
+            continue
+
+        # First non-option token → the subcommand
+        return tok
+
+    return None
+
+
+def _shlex_split(command):
+    """Split a shell command into tokens, handling quoted paths.
+
+    Uses posix=True so quotes are removed and spaces inside quotes are
+    preserved.  Windows backslashes inside double-quotes are kept as-is
+    by pre-escaping them before shlex sees them.
+    """
+    # shlex posix mode treats backslash as escape; double them so
+    # Windows paths like C:\Projects survive splitting.
+    escaped = command.replace("\\", "\\\\")
+    try:
+        return shlex.split(escaped, posix=True)
+    except ValueError:
+        # Unbalanced quotes — fall back to naive whitespace split
+        return command.split()
+
+
 def extract_git_target_dir(command):
     """Extract the target directory from git -C <path> in a command.
 
     Also handles --git-dir and --work-tree for trivial cases.
     Returns the path if found, else None.
     """
-    # git -C <path>
-    match = re.search(r"git\s+-C\s+(\S+)", command)
-    if match:
-        return match.group(1).strip("'\"")
+    tokens = _shlex_split(command)
 
-    # --work-tree=<path>
-    match = re.search(r"--work-tree[=\s]+(\S+)", command)
-    if match:
-        return match.group(1).strip("'\"")
+    i = 0
+    while i < len(tokens):
+        tok = tokens[i]
 
-    # --git-dir=<path> — derive the working directory
-    match = re.search(r"--git-dir[=\s]+(\S+)", command)
-    if match:
-        git_dir = match.group(1).strip("'\"")
-        return os.path.dirname(git_dir) if git_dir.endswith(".git") else git_dir
+        # git -C <path>
+        if tok == "-C" and i + 1 < len(tokens):
+            return tokens[i + 1]
+
+        # --work-tree=<path> or --work-tree <path>
+        if tok.startswith("--work-tree="):
+            return tok.split("=", 1)[1]
+        if tok == "--work-tree" and i + 1 < len(tokens):
+            return tokens[i + 1]
+
+        # --git-dir=<path> or --git-dir <path>
+        if tok.startswith("--git-dir="):
+            git_dir = tok.split("=", 1)[1]
+            return os.path.dirname(git_dir) if git_dir.endswith(".git") else git_dir
+        if tok == "--git-dir" and i + 1 < len(tokens):
+            git_dir = tokens[i + 1]
+            return os.path.dirname(git_dir) if git_dir.endswith(".git") else git_dir
+
+        i += 1
 
     return None
 
@@ -138,10 +222,11 @@ def main():
         command = tool_input.get("command", "")
 
         # Only inspect git commit / git push commands.
-        # Use \b word boundaries so `git -C <path> commit` is matched,
-        # not just `git commit` (subcommand may not be adjacent).
-        is_commit = bool(re.search(r"\bgit\b.*\bcommit\b", command))
-        is_push = bool(re.search(r"\bgit\b.*\bpush\b", command))
+        # Parse the actual subcommand (first non-option word after 'git')
+        # so that `git log --grep commit` is not mistaken for a commit.
+        subcommand = _extract_git_subcommand(command)
+        is_commit = subcommand == "commit"
+        is_push = subcommand == "push"
         if not is_commit and not is_push:
             return
 
