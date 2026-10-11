@@ -132,13 +132,14 @@ def main() -> None:
 
     if project_id:
         emit(
-            f"Cross-chat registered as project_id={project_id}. Launch "
-            f"`{monitor_command} monitor {project_id} {NATS_URL}` as a background "
-            "process and watch it with the Monitor tool for the rest of this "
-            "session — each CROSSCHAT_MESSAGE line is one incoming message. Use "
-            "that command verbatim; this project's crosschat may not be on PATH. "
-            "Start it exactly once; it runs for the whole session and is never "
-            "relaunched between messages. See the crosschat-monitor skill."
+            f"Cross-chat registered as project_id={project_id}. The crosschat "
+            "plugin's `listener` monitor is already listening for this session; "
+            "each CROSSCHAT_MESSAGE notification is one incoming message. Do NOT "
+            "start a listener yourself: a second one fails with 'consumer is "
+            "already bound'. Only if no listener is running (plugin monitors do "
+            "not start in -p mode) launch "
+            f"`{monitor_command} monitor {project_id} {NATS_URL}` and watch it "
+            "with the Monitor tool. See the crosschat-monitor skill."
         )
     else:
         emit(
