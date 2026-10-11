@@ -1,0 +1,7 @@
+[
+  {
+    "name": "listener",
+    "command": "python \"${CLAUDE_PLUGIN_ROOT}/monitors/listen.py\"",
+    "description": "crosschat: incoming messages for this project"
+  }
+]

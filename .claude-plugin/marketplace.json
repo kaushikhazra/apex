@@ -25,8 +25,8 @@
       "category": "development",
       "license": "Apache-2.0",
       "source": "./plugins/crosschat",
-      "description": "A method for agents to talk to each other — 4 skills (init, register, send, monitor) + a SessionStart hook that registers this project on a NATS-backed message mesh and hands the live session its listener command. Any session can then message any registered project by id. Requires `pip install crosschat` and a reachable NATS server; degrades to an informational message when either is absent.",
-      "version": "0.5.3"
+      "description": "A method for agents to talk to each other — 4 skills (init, register, send, monitor) + a SessionStart hook that registers this project on a NATS-backed message mesh + a session-long listener monitor. Any session can then message any registered project by id. Requires `pip install crosschat` and a reachable NATS server; degrades to an informational message when either is absent.",
+      "version": "0.6.0"
     },
     {
       "name": "ai-engineering",

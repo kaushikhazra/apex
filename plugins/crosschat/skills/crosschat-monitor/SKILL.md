@@ -16,8 +16,18 @@ worker's single-completion subject.
 
 ## Mechanism — one process, whole session
 
-Launch once, as a **background** process, immediately after
-`crosschat-register`:
+**From plugin 0.6.0 the plugin starts this for you.** `monitors/monitors.json`
+declares a `listener` monitor that Claude Code runs for the whole session; it
+registers, then runs `crosschat monitor`. Each `CROSSCHAT_MESSAGE` line arrives
+as a notification. **Do not start a second listener** — it fails with
+`consumer is already bound`.
+
+Why: the Monitor tool is capped at 30 minutes, so a listener started by the
+session expired every half hour and had to be re-armed. A plugin monitor has no
+such cap.
+
+**Manual start, only when no plugin monitor runs** (`-p` mode, or a provider
+where monitors are unavailable). Launch once, as a **background** process:
 
 ```
 crosschat monitor <project_id> [nats_url]
