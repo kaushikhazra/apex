@@ -58,7 +58,10 @@ def resolve_command(project_dir: str) -> list[str] | None:
         os.path.join(project_dir, ".claude", ".venv", "Scripts", "python.exe"),
         os.path.join(project_dir, ".claude", ".venv", "bin", "python"),
     ):
-        if os.path.exists(candidate):
+        # A project venv that exists for other reasons (a brain's own tools)
+        # need not hold crosschat; taking it on existence alone made every
+        # call fail with "No module named crosschat".
+        if os.path.exists(candidate) and _has_crosschat(candidate):
             return [candidate, "-m", "crosschat"]
 
     for name in ("python", "python3"):
