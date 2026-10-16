@@ -95,12 +95,7 @@ Write the report to `.claude/dryrun-context-{N}.md`.
 **Verdict**: {PASS / PASS WITH WARNINGS / FAIL — needs revision}
 ```
 
-### Step 5: Update eval.md
-
-If `.claude/eval.md` exists and has an unchecked entry for `CLAUDE.md`, mark it done:
-- Change `- [ ]` to `- [x]` for the CLAUDE.md entry
-
-### Step 6: Display to User
+### Step 5: Display to User
 
 Output the verdict and summary counts to the conversation.
 
