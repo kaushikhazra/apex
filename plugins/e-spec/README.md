@@ -72,14 +72,12 @@ To update downstream projects:
 
 ## Hooks included
 
-Eight SDLC guardrail hooks ship with this plugin and are auto-loaded when the plugin is installed — no extra wiring or `settings.json` changes needed.
+Six SDLC guardrail hooks ship with this plugin and are auto-loaded when the plugin is installed — no extra wiring or `settings.json` changes needed.
 
 | Script | Event | What it does |
 |--------|-------|-------------|
 | `branch_name_validator.py` | PreToolUse (Bash\|PowerShell) | Blocks `git checkout -b` / `git switch -c` commands that don't follow git flow naming (`feature/*`, `bugfix/*`, `hotfix/*`, `release/*`). |
-| `context_change_tracker.py` | PostToolUse (Edit\|Write) | Detects edits to context artifacts (CLAUDE.md, blueprints, plans) and appends a pending checklist entry to `.claude/eval.md` so they're validated before commit. |
 | `context_eval_clear.py` | PostToolUse (Bash\|PowerShell) | Clears `.claude/eval.md` and transient dryrun reports after a `git commit` whose message includes "context evaluated". |
-| `context_eval_gate.py` | Stop (reads what `context_change_tracker.py` writes — both anchor on `CLAUDE_PROJECT_DIR`, and must stay in agreement) | Blocks the agent from stopping if `.claude/eval.md` has unchecked items; outputs a reminder to run the appropriate `/dryrun-*` skill. |
 | `cross_module_guard.py` | PreToolUse (Edit\|Write) | Blocks direct cross-module imports between isolated modules; all cross-module communication must go through the configured IPC mechanism. Configure `MODULES`, `SRC_ROOT`, and `IMPORT_PKG` per project. |
 | `protected_branch_guard.py` | PreToolUse (Edit\|Write\|Bash\|PowerShell) | Blocks commits, protected-branch pushes, and source/test file edits on `main` and `develop`; forces use of feature/bugfix/hotfix/release branches. Per-repo opt-out: `git config apex.branchGuard off` disables it for that repo only; any other value, or none, keeps it on. |
 | `ruff_format.py` | PostToolUse (Edit\|Write) | Auto-runs `ruff check --fix` and `ruff format` on any edited `.py` file. Configure `RUFF_CMD` per project runner (uv, poetry, global). |
