@@ -103,11 +103,7 @@ Write the report to `.claude/dryrun-blueprint-{N}.md`.
 **Verdict**: {PASS / PASS WITH WARNINGS / FAIL — needs revision}
 ```
 
-### Step 4: Update eval.md
-
-If `.claude/eval.md` exists and has an unchecked entry for the blueprint file, mark it done.
-
-### Step 5: Display to User
+### Step 4: Display to User
 
 Output the verdict and summary counts to the conversation.
 

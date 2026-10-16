@@ -105,10 +105,6 @@ Write the report to `.claude/dryrun-plan-{N}.md`.
 **Verdict**: {PASS / PASS WITH WARNINGS / FAIL — needs revision}
 ```
 
-### Update eval.md
-
-If `.claude/eval.md` exists and has an unchecked entry for the plan file, mark it done.
-
 ### Display to User
 
 Output the verdict and summary counts to the conversation.
