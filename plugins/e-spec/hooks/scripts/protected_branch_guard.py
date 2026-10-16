@@ -27,11 +27,30 @@ PROTECTED_BRANCHES = ("main", "master", "develop")
 COMMAND_TOOLS = ("Bash", "PowerShell")
 
 
+def is_guard_off(directory):
+    """True if the repo containing `directory` opted out via git config.
+
+    `git config apex.branchGuard off` (per repo) disables the guard there.
+    Any other value, or none, leaves the guard on.
+    """
+    result = subprocess.run(
+        ["git", "-C", directory, "config", "--get", "apex.branchGuard"],
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0 and result.stdout.strip() == "off"
+
+
 def get_branch_for_dir(directory):
     """Get the current branch for the repo containing `directory`.
 
-    Returns (branch, repo_root) or (None, None) if not in a git repo.
+    Returns (branch, repo_root) or (None, None) if not in a git repo, or if
+    that repo has opted out with `apex.branchGuard=off` (callers treat both
+    as "allow").
     """
+    if is_guard_off(directory):
+        return None, None
+
     result = subprocess.run(
         ["git", "-C", directory, "rev-parse", "--abbrev-ref", "HEAD"],
         capture_output=True,
