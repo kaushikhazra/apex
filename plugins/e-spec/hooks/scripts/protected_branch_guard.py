@@ -2,7 +2,8 @@
 
 Blocks edits/commits/pushes on main, master, and develop branches.
 Forces agents to create a feature/bugfix/hotfix/release branch first.
-Both 'main' and 'master' are treated identically — push is blocked on both.
+Both 'main' and 'master' are treated identically — push is blocked on both,
+except a push that only moves tags (it changes no branch).
 
 For Edit/Write tools: resolves the repo from the TARGET file path, not from
 the session's cwd. A file not in any git repo is always allowed.
@@ -232,6 +233,87 @@ def extract_git_target_dir(command):
     return None
 
 
+# `git push` flags that consume the next token as their value.
+_PUSH_OPTIONS_WITH_VALUE = {"--repo", "--receive-pack", "--exec", "-o", "--push-option"}
+
+# `git push` flags that update branches whatever refspecs follow.
+_PUSH_BRANCH_FLAGS = {"--all", "--branches", "--mirror", "--follow-tags"}
+
+
+def _ref_exists(directory, ref):
+    result = subprocess.run(
+        ["git", "-C", directory, "show-ref", "--verify", "--quiet", ref],
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+def _is_tag_name(directory, name):
+    """True only if `name` is a tag ref, or a local tag that no branch shares.
+
+    Anything git cannot confirm counts as not-a-tag, so the push stays blocked.
+    """
+    if name.startswith("refs/tags/"):
+        return True
+    if name.startswith("refs/") or not name:
+        return False
+    return _ref_exists(directory, f"refs/tags/{name}") and not _ref_exists(
+        directory, f"refs/heads/{name}"
+    )
+
+
+def is_tag_only_push(command, directory):
+    """True if this `git push` can only create, update or delete tags.
+
+    A bare `git push`, `HEAD`, a branch name, `--all`/`--mirror`/`--follow-tags`,
+    or any refspec whose destination is not a confirmed tag is not tag-only.
+    """
+    tokens = _shlex_split(command.split("|")[0])
+    try:
+        args = tokens[tokens.index("push", tokens.index("git")) + 1 :]
+    except ValueError:
+        return False
+
+    push_tags = False
+    positionals = []
+    i = 0
+    while i < len(args):
+        tok = args[i]
+        if tok in _PUSH_OPTIONS_WITH_VALUE:
+            i += 2
+            continue
+        if tok in _PUSH_BRANCH_FLAGS:
+            return False
+        if tok == "--tags":
+            push_tags = True
+        elif not tok.startswith("-"):
+            positionals.append(tok)
+        i += 1
+
+    # First positional is the remote; the rest are refspecs.
+    refspecs = positionals[1:]
+    if not refspecs:
+        return push_tags
+
+    # Legacy `git push origin tag <name>` is shorthand for refs/tags/<name>.
+    expanded = []
+    j = 0
+    while j < len(refspecs):
+        if refspecs[j] == "tag" and j + 1 < len(refspecs):
+            expanded.append(f"refs/tags/{refspecs[j + 1]}")
+            j += 2
+        else:
+            expanded.append(refspecs[j])
+            j += 1
+
+    for spec in expanded:
+        destination = spec.lstrip("+").split(":", 1)[-1]
+        if not _is_tag_name(directory, destination):
+            return False
+    return True
+
+
 def main():
     data = json.loads(sys.stdin.read())
     tool_name = data.get("tool_name", "")
@@ -251,10 +333,8 @@ def main():
 
         # Resolve repo from command's target, fall back to session cwd
         target_dir = extract_git_target_dir(command)
-        if target_dir:
-            branch, _ = get_branch_for_dir(nearest_existing_parent(target_dir))
-        else:
-            branch, _ = get_branch_for_dir(os.getcwd())
+        directory = nearest_existing_parent(target_dir) if target_dir else os.getcwd()
+        branch, _ = get_branch_for_dir(directory)
 
         if branch is None or branch not in PROTECTED_BRANCHES:
             return
@@ -268,6 +348,8 @@ def main():
             sys.exit(2)
 
         if is_push and branch in ("main", "master"):
+            if is_tag_only_push(command, directory):
+                return
             print(
                 "BLOCKED: Cannot push to 'main'. Use a release/* or hotfix/* branch.",
                 file=sys.stderr,

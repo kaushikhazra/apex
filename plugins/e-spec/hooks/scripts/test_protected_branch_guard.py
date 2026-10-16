@@ -18,10 +18,17 @@ from unittest.mock import MagicMock, patch
 SCRIPT = str(Path(__file__).with_name("protected_branch_guard.py"))
 
 
-def _run_main(branch: str, stdin_data: dict, guard_config: str | None = None) -> int:
+def _run_main(
+    branch: str,
+    stdin_data: dict,
+    guard_config: str | None = None,
+    tags: tuple = ("v1.0", "v1.3.0"),
+    heads: tuple = (),
+) -> int:
     """Load (reload) the guard module, inject branch + stdin, call main().
 
     `guard_config` is the value of `git config apex.branchGuard` (None = unset).
+    `tags` / `heads` are the tag and extra branch names the fake repo holds.
     """
     spec = importlib.util.spec_from_file_location("protected_branch_guard", SCRIPT)
     mod = importlib.util.module_from_spec(spec)
@@ -32,6 +39,16 @@ def _run_main(branch: str, stdin_data: dict, guard_config: str | None = None) ->
         if "config" in cmd:
             proc.returncode = 0 if guard_config is not None else 1
             proc.stdout = (guard_config or "") + "\n"
+        elif "show-ref" in cmd:
+            ref = cmd[-1]
+            known = {f"refs/tags/{t}" for t in tags} | {
+                f"refs/heads/{h}" for h in (branch, *heads)
+            }
+            proc.returncode = 0 if ref in known else 1
+            proc.stdout = ""
+        elif "--show-toplevel" in cmd:
+            proc.returncode = 0
+            proc.stdout = "/project\n"
         else:
             proc.returncode = 0
             proc.stdout = branch + "\n"
@@ -193,6 +210,78 @@ class TestPowerShellParity(unittest.TestCase):
             },
         )
         self.assertEqual(code, 0)
+
+
+class TestTagPush(unittest.TestCase):
+    """A push that only moves tags changes no branch; anything that could
+    move a protected branch stays blocked."""
+
+    @staticmethod
+    def _push(command, branch="main", tool="Bash", **kwargs):
+        return _run_main(
+            branch,
+            {"tool_name": tool, "tool_input": {"command": command}},
+            **kwargs,
+        )
+
+    def test_tag_push_allowed(self):
+        for command in (
+            "git push origin v1.0",
+            "git push origin refs/tags/v1.0",
+            "git push --tags",
+            "git push origin --tags",
+            "git push origin tag v1.0",
+            "git push origin :v1.0",
+            "git push -f origin v1.0",
+        ):
+            for branch in ("main", "master"):
+                with self.subTest(command=command, branch=branch):
+                    self.assertEqual(self._push(command, branch=branch), 0)
+
+    def test_tag_push_allowed_in_powershell(self):
+        self.assertEqual(self._push("git push origin v1.3.0", tool="PowerShell"), 0)
+
+    def test_branch_push_blocked(self):
+        for command in (
+            "git push",
+            "git push origin",
+            "git push origin main",
+            "git push origin master",
+            "git push origin HEAD",
+            "git push -u origin HEAD",
+        ):
+            for branch in ("main", "master"):
+                with self.subTest(command=command, branch=branch):
+                    self.assertEqual(self._push(command, branch=branch), 2)
+
+    def test_tag_and_branch_blocked(self):
+        self.assertEqual(self._push("git push origin v1.0 main"), 2)
+        self.assertEqual(self._push("git push --tags origin main"), 2)
+
+    def test_branch_updating_flags_blocked(self):
+        for command in (
+            "git push --all origin",
+            "git push --mirror origin",
+            "git push --follow-tags origin v1.0",
+        ):
+            with self.subTest(command=command):
+                self.assertEqual(self._push(command), 2)
+
+    def test_tag_source_to_branch_destination_blocked(self):
+        self.assertEqual(self._push("git push origin v1.0:refs/heads/main"), 2)
+        self.assertEqual(self._push("git push origin v1.0:main"), 2)
+
+    def test_unknown_name_blocked(self):
+        self.assertEqual(self._push("git push origin v9.9"), 2)
+
+    def test_name_shared_by_tag_and_branch_blocked(self):
+        self.assertEqual(self._push("git push origin v1.0", heads=("v1.0",)), 2)
+
+    def test_develop_push_stays_allowed(self):
+        self.assertEqual(self._push("git push origin develop", branch="develop"), 0)
+
+    def test_guard_off_allows_branch_push(self):
+        self.assertEqual(self._push("git push origin main", guard_config="off"), 0)
 
 
 class TestBranchGuardOptOut(unittest.TestCase):
