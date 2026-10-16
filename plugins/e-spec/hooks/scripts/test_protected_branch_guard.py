@@ -18,22 +18,31 @@ from unittest.mock import MagicMock, patch
 SCRIPT = str(Path(__file__).with_name("protected_branch_guard.py"))
 
 
-def _run_main(branch: str, stdin_data: dict) -> int:
-    """Load (reload) the guard module, inject branch + stdin, call main()."""
+def _run_main(branch: str, stdin_data: dict, guard_config: str | None = None) -> int:
+    """Load (reload) the guard module, inject branch + stdin, call main().
+
+    `guard_config` is the value of `git config apex.branchGuard` (None = unset).
+    """
     spec = importlib.util.spec_from_file_location("protected_branch_guard", SCRIPT)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
-    fake_proc = MagicMock()
-    fake_proc.returncode = 0
-    fake_proc.stdout = branch + "\n"
+    def fake_run(cmd, **_kwargs):
+        proc = MagicMock()
+        if "config" in cmd:
+            proc.returncode = 0 if guard_config is not None else 1
+            proc.stdout = (guard_config or "") + "\n"
+        else:
+            proc.returncode = 0
+            proc.stdout = branch + "\n"
+        return proc
 
     with (
         patch.object(mod, "subprocess") as mock_subproc,
         patch("sys.stdin", io.StringIO(json.dumps(stdin_data))),
         patch("sys.stderr", io.StringIO()),
     ):
-        mock_subproc.run.return_value = fake_proc
+        mock_subproc.run.side_effect = fake_run
         try:
             mod.main()
             return 0
@@ -184,6 +193,26 @@ class TestPowerShellParity(unittest.TestCase):
             },
         )
         self.assertEqual(code, 0)
+
+
+class TestBranchGuardOptOut(unittest.TestCase):
+    """`git config apex.branchGuard off` allows the call; anything else, or
+    unset, is today's behaviour."""
+
+    COMMIT = {"tool_name": "Bash", "tool_input": {"command": "git commit -m x"}}
+    WRITE = {"tool_name": "Write", "tool_input": {"file_path": "/project/src/foo.py"}}
+
+    def test_off_allows_commit_on_master(self):
+        self.assertEqual(_run_main("master", self.COMMIT, guard_config="off"), 0)
+
+    def test_off_allows_src_write_on_master(self):
+        self.assertEqual(_run_main("master", self.WRITE, guard_config="off"), 0)
+
+    def test_other_value_still_blocks(self):
+        self.assertEqual(_run_main("master", self.COMMIT, guard_config="on"), 2)
+
+    def test_unset_still_blocks(self):
+        self.assertEqual(_run_main("master", self.COMMIT, guard_config=None), 2)
 
 
 if __name__ == "__main__":

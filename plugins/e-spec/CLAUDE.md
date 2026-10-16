@@ -7,7 +7,7 @@ A portable, spec-driven development methodology. Copy this file into any project
 ## Git Flow
 
 - `main` → `develop` → `feature/*`, `bugfix/*`, `release/*`, `hotfix/*`
-- Protected branches (`main`, `develop`): no direct commits or pushes. Create a feature/bugfix branch first.
+- Protected branches (`main`, `develop`): no direct commits or pushes. Create a feature/bugfix branch first. A repo can opt out of the guard with `git config apex.branchGuard off` (that repo only).
 - Never check in any `temp` folder or files with `temp` prefix/suffix.
 
 ---

@@ -271,6 +271,67 @@ class TestReadOnlyGitCommandsAllowed:
         assert "BLOCKED" in stderr
 
 
+# ── Per-repo opt-out: git config apex.branchGuard ─────────────────────
+
+
+def _set_guard_config(repo, value):
+    subprocess.run(
+        ["git", "-C", repo, "config", "apex.branchGuard", value],
+        capture_output=True,
+        check=True,
+    )
+
+
+class TestBranchGuardOptOut:
+    """`apex.branchGuard=off` allows everything in that repo; any other value
+    or none leaves the guard on. Other repos are unaffected."""
+
+    @pytest.fixture
+    def optout_repo(self):
+        path = _init_repo(_tmp_dir("apex-guard-optout"))
+        os.makedirs(os.path.join(path, "src"), exist_ok=True)
+        yield path
+        _force_rmtree(path)
+
+    def test_off_allows_commit_and_push(self, optout_repo):
+        _set_guard_config(optout_repo, "off")
+        for command in ("git commit -m x", "git push origin main"):
+            code, stderr = _run_guard("Bash", {"command": command}, cwd=optout_repo)
+            assert code == 0, f"{command!r} should be allowed when off, got: {stderr}"
+
+    def test_off_allows_src_edit(self, optout_repo):
+        _set_guard_config(optout_repo, "off")
+        target = os.path.join(optout_repo, "src", "app.py").replace("\\", "/")
+        code, stderr = _run_guard("Write", {"file_path": target}, cwd=optout_repo)
+        assert code == 0, f"src edit should be allowed when off, got: {stderr}"
+
+    def test_off_applies_to_git_C_target(self, optout_repo, repo_on_master):
+        _set_guard_config(optout_repo, "off")
+        command = f"git -C {optout_repo} commit -m x"
+        code, stderr = _run_guard("Bash", {"command": command}, cwd=repo_on_master)
+        assert code == 0, f"opt-out should follow the -C target, got: {stderr}"
+
+    def test_off_does_not_leak_to_other_repo(self, optout_repo, repo_on_master):
+        _set_guard_config(optout_repo, "off")
+        code, _ = _run_guard("Bash", {"command": "git commit -m x"}, cwd=repo_on_master)
+        assert code == 2, "repo without the setting must stay guarded"
+
+    def test_other_value_still_blocks(self, optout_repo):
+        _set_guard_config(optout_repo, "on")
+        code, stderr = _run_guard(
+            "Bash", {"command": "git commit -m x"}, cwd=optout_repo
+        )
+        assert code == 2, "only 'off' opts out"
+        assert "BLOCKED" in stderr
+
+    def test_unset_still_blocks(self, optout_repo):
+        code, stderr = _run_guard(
+            "Bash", {"command": "git commit -m x"}, cwd=optout_repo
+        )
+        assert code == 2, "no setting means guard on"
+        assert "BLOCKED" in stderr
+
+
 # ── Defect: quoted path with spaces in git -C ────────────────────────
 
 
