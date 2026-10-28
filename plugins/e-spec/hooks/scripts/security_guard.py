@@ -1,8 +1,13 @@
 """Hook: Security guard.
 
-Blocks access to sensitive files (.env, credentials) and destructive commands.
+Holds access to sensitive files (.env, credentials) and destructive commands.
 
 Event: PreToolUse (Edit|Write|Read|Bash|PowerShell)
+
+Shell commands are deny-then-ack (second-brain's command guard design): the
+first try is denied with the reason and an ack code, the same command re-run
+with `# guard-ack:<code>` appended goes through. File tools (Read/Edit/Write)
+have no command to append a comment to, so a sensitive path stays a hard block.
 
 Both shells are inspected. A guard that covers only one of them is not a
 guard — on 2026-08-04 the bash form of a destructive command was correctly
@@ -10,12 +15,21 @@ blocked here and the PowerShell form of the same command walked past and
 destroyed a repository's git history.
 """
 
+import hashlib
 import json
 import re
 import sys
 
 # Tools whose input is a shell command rather than a file path.
 COMMAND_TOOLS = ("Bash", "PowerShell")
+
+# Deny-then-ack: a held shell command is denied once with a code that is the
+# hash of its exact text; re-running it with `# guard-ack:<code>` appended lets
+# it through to the owner's own permission rules. `#` starts a comment in both
+# shells, so the ack changes nothing that runs. A fixed word would get
+# pre-written onto every command and the guard would vanish.
+ACK = re.compile(r"\s*#\s*guard-ack:(?P<code>[0-9a-fA-F]+)\s*\Z")
+ACK_LEN = 6
 
 SENSITIVE_PATTERNS = (
     r"\.env$",
@@ -146,6 +160,64 @@ def check_file_path(file_path):
     return None
 
 
+def split_ack(command):
+    """(command without its trailing ack comment, the code the ack carried or None)."""
+    m = ACK.search(command)
+    if not m:
+        return command.strip(), None
+    return command[: m.start()].strip(), m.group("code").lower()
+
+
+def ack_code(command):
+    """Short hash of the exact command text: an ack cannot be written before the
+    command is known, and one command's ack means nothing on another."""
+    return hashlib.sha256(command.encode("utf-8", "replace")).hexdigest()[:ACK_LEN]
+
+
+def command_findings(command):
+    """Why a shell command is held, one sentence per reason; empty when it is clean."""
+    findings = []
+    for pattern in DANGEROUS_COMMANDS:
+        if re.search(pattern, command, re.IGNORECASE):
+            findings.append(f"Destructive command detected (pattern: {pattern}).")
+            break
+
+    relative_git = find_relative_git_target(command)
+    if relative_git:
+        findings.append(
+            f"Destructive command targets '{relative_git}' by relative path. It "
+            f"resolves against this process's current directory, not the "
+            f"directory you think you are in. Use an absolute path if this is "
+            f"really what you meant."
+        )
+
+    # Skip the sensitive-file check if the command only references safe files
+    has_safe = any(re.search(s, command, re.IGNORECASE) for s in SAFE_FILES)
+    if not has_safe:
+        for pattern in SENSITIVE_PATTERNS:
+            if re.search(pattern, command, re.IGNORECASE):
+                findings.append(
+                    f"Command accesses a sensitive file (pattern: {pattern})."
+                )
+                break
+    return findings
+
+
+def deny(reason):
+    """Deny, never allow: allow would skip the owner's own permission rules."""
+    print(
+        json.dumps(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": reason,
+                }
+            }
+        )
+    )
+
+
 def main():
     data = json.loads(sys.stdin.read())
     tool_name = data.get("tool_name", "")
@@ -153,37 +225,19 @@ def main():
 
     # Both shells carry the command on the same `command` field.
     if tool_name in COMMAND_TOOLS:
-        command = tool_input.get("command", "")
-        for pattern in DANGEROUS_COMMANDS:
-            if re.search(pattern, command, re.IGNORECASE):
-                print(
-                    f"BLOCKED: Destructive command detected. Pattern: {pattern}",
-                    file=sys.stderr,
-                )
-                sys.exit(2)
-
-        relative_git = find_relative_git_target(command)
-        if relative_git:
-            print(
-                f"BLOCKED: Destructive command targets '{relative_git}' by "
-                f"relative path. It resolves against this process's current "
-                f"directory, not the directory you think you are in. Use an "
-                f"absolute path if this is really what you meant.",
-                file=sys.stderr,
-            )
-            sys.exit(2)
-
-        # Check if the command accesses sensitive files
-        # Skip if the command only references safe files
-        has_safe = any(re.search(s, command, re.IGNORECASE) for s in SAFE_FILES)
-        if not has_safe:
-            for pattern in SENSITIVE_PATTERNS:
-                if re.search(pattern, command, re.IGNORECASE):
-                    print(
-                        f"BLOCKED: Command accesses sensitive file. Pattern: {pattern}",
-                        file=sys.stderr,
-                    )
-                    sys.exit(2)
+        command, acked = split_ack(tool_input.get("command", ""))
+        findings = command_findings(command)
+        if not findings:
+            return  # nothing suspected: no output, the normal permission flow decides
+        code = ack_code(command)
+        if acked == code:
+            return  # checked and re-run with the matching ack: the owner's rules decide
+        deny(
+            "BLOCKED: "
+            + " ".join(findings)
+            + f" If you checked and still want it, re-run the same command with"
+            f" ` # guard-ack:{code}` appended (on a new last line if it ends in a heredoc)."
+        )
         return
 
     # Edit, Write, or Read — check file path
