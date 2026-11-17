@@ -12,8 +12,10 @@ on the SessionStart hook having finished first. Registration is idempotent.
 A monitor gets no CLAUDE_PROJECT_DIR in its environment; it runs in the
 session's working directory, which is the project directory.
 
-Never loops on failure. A missing `crosschat` or a failed registration prints
-one line and exits, so the session hears about it once rather than never.
+Waits for NATS rather than giving up on it: registration has no timeout, so a
+session that starts before NATS does registers as soon as NATS answers. Never
+loops on failure otherwise. A missing `crosschat` or a failed registration
+prints one line and exits, so the session hears about it once rather than never.
 """
 
 from __future__ import annotations
@@ -24,7 +26,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "hooks"))
-from register import NATS_URL, TIMEOUT_SECONDS, resolve_command  # noqa: E402
+from register import NATS_URL, resolve_command  # noqa: E402
 
 
 def main() -> int:
@@ -39,13 +41,15 @@ def main() -> int:
         return 0
 
     try:
+        # No timeout: with NATS down, `crosschat register` waits inside the
+        # client, which retries the first connection until NATS answers. A
+        # timeout here killed that wait and left the session without a listener.
         result = subprocess.run(
             [*command, "register", project_dir, NATS_URL],
             capture_output=True,
             text=True,
-            timeout=TIMEOUT_SECONDS,
         )
-    except Exception as e:  # NATS down, crash: say so once and stop
+    except Exception as e:  # crash: say so once and stop
         print(f"CROSSCHAT_UNAVAILABLE registration failed: {e}", flush=True)
         return 0
 
